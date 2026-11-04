@@ -84,7 +84,7 @@ fun MainScreen(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A))
+                colors = CardDefaults.cardColors(containerColor = git add .Color(0xFF0F172A))
             ) {
                 Column(
                     modifier = Modifier

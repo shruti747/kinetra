@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kinetra.app.PdfReaderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-27T04:39:40.595Z" hostname="DESKTOP-8H760F7" time="1.226">
+  <properties/>
+  <testcase name="readPdf" classname="com.kinetra.app.PdfReaderTest" time="1.221"/>
+  <system-out><![CDATA[=== PDF CONTENT START ===
+KINETRA SYSTEM / 01
+01 / IDENTITY · LOGO · BRAND LOCKUPS
+KINETRA KINETRA
+Primary lockup for light 
+surfaces, editorial pages 
+and app headers.
+Secondary lockup for 
+dark surfaces, 
+performance dashboards 
+and tracking states.
+02 / TYPE · INTER
+47:36 48 / 750 · Metrics
+Make every run count.
+Body 14 / 400 · Labels 12 / 600
+03 / COLOR
+Midnight White Cobalt Deep blue Silver Cyan
+#080D18 #F7F9FC #356BFF #10182B #D9E3F2 #52D9FF
+DEMO PRODUCT · STATIC UI ONLY
+All athletes, events and records are fictional sample data. 
+GPS is simulated and estimated; AI insights are estimates, 
+not coaching advice. “Official” labels mean fictional 
+organizer-verified demo records. No controls are interactive.
+04 / CONTROLS
+Start tracking
+View performance
+Email address
+alex.morgan@email.com
+Demo Simulated GPS AI estimate
+05 / CARDS · METRICS · EVENTS
+Distance Avg pace
+6.20 km 4:46 /km
+22 Riverside 10K
+Victoria Park, LondonNOV
+£3510 km · Road race
+06 / BOTTOM NAV · FOUR ACTIVE STATES
+Home Discover Track Profile
+Home Discover Track Profile
+Home Discover Track Profile
+Home Discover Track Profile
+Cinematic sports-tech · 17 reusable local components · Six bound 
+palette variables · Typography-only KINETRA identity · Demo GPS and 
+AI; no live integrations or wired interactions.
+07 / LIGHT NAVIGATION · COMPONENTS
+Home Discover Track Profile
+Home Discover Track Profile
+Home Discover Track Profile
+Home Discover Track Profile
+9:41
+PERFORMANCE / REIMAGINED Demo
+KINETRA
+Make every run count.
+ATHLETE INTELLIGENCE / V1.0
+9:41
+KINETRA ATHLETE INTELLIGENCE
+TRACK YOUR 
+PROGRESS. BEAT 
+YOUR BEST.
+Turn every run into progress with GPS tracking, 
+race-day tools and AI-powered insights.
+Create an account
+Sign in
+Fictional demo. GPS and AI are simulated.
+9:41
+Full name
+Alex Morgan
+Valid name
+Email address
+alex.morgan@email.com
+Valid email
+Password
+••••••••••••
+Strong password
+I agree to the Terms of Service and Privacy Policy.
+Create account
+OR
+Continue with Google
+Already on the team? Sign in
+9:41
+KINETRA
+04 / SIGN IN
+Back in your stride.
+Welcome back, athlete. Your next personal best is 
+waiting.
+Email address
+alex.morgan@email.com
+Password
+••••••••••••
+Forgot Password?
+Sign in
+OR
+Continue with Google
+New to Kinetra? Create an account
+Demo account
+Alex Morgan · London, UK
+
+No real account or login is connected.
+9:41
+KINETRA
+05 / PASSWORD RECOVERY
+Reset. Refocus.
+A fresh start is one email away.
+Enter your email to preview account recovery. This 
+demo does not send messages.
+Email address
+alex.morgan@email.com
+Send reset link
+Reset link preview
+Recovery instructions are simulated for 
+alex.morgan@email.com. No real reset link is 
+generated.
+Demo Demo only. No email was sent.
+Back to sign in
+9:41
+KINETRA ATHLETE / 06
+Morning, Alex.
+MON 16 NOV 2026  /  LONDON, UK
+YOUR NEXT RACE
+RIVERSIDE
+
+10K
+Victoria Park, London
+10–16 NOV
+WEEKLY MILEAGE
+24.8 km
+22 NOV 2026 · 09:00  /  10 km
+£35
+F S S M
+10K PERSONAL BESTAvg pace
+4:46 /km
+LAST ACTIVITY  /  15 NOV
+47:3610 km training run
+GPS estimate · official pending
+AI · DEMO  Keep race-week effort light.
+
+Try 5 km at a conversational pace.
+Start a run
+of 35 km goal · GPS estimate
+T W T
+46:12
+Official · demo
+Home Discover Track Profile
+9:41
+KINETRA EVENTS / 07
+FIND YOUR
+
+NEXT START.
+Search events, sports, cities
+LOCATION DATE
+London, UK From 16 Nov 2026
+All sports Running Cycling More
+FEATURED  /  RUNNING
+RIVERSIDE 10K
+22 NOV 2026 · 09:00 · 10 km       £35
+Victoria Park, London
+MARATHON
+London Winter Marathon
+06 DEC 2026 · 42.2 km · £65
+Lee Valley, London
+CYCLING
+Richmond Park Cyclathon
+29 NOV 2026 · 60 km · £40
+Richmond Park, London
+MULTISPORT
+Docklands Winter Duathlon
+13 DEC 2026 · Run / bike / run · £50
+Royal Victoria Dock, London
+FICTIONAL SAMPLE EVENTS
+Home Discover Track Profile
+9:41
+KINETRA RACE DAY / 08
+RUNNING  /  ENTRIES OPEN
+RIVERSIDE
+
+10K
+SUN 22 NOV 2026  ·  09:00
+Victoria Park, London
+CHOOSE YOUR DISTANCE
+5 km 10 km · £35 Junior 2 km
+Fast, flat, two-lap course. Chip timing, water
+
+stations and a finisher medal.
+10 km LOOP ELEVATION  /  +24 m
+0 km                          10 km
+SIMULATED ROUTE · ESTIMATED ELEVATION
+ORGANIZER
+Victoria Park Athletics Fictional demo
+10 km entry · £35 total
+Register · £35
+Home Discover Track Profile
+9:41
+KINETRA RACE ENTRY / 09
+YOUR NEXT
+
+STARTS HERE.
+Riverside 10K
+22 NOV 2026  ·  09:00
+Victoria Park, London
+PARTICIPANT  /  LONDON, UK
+Full name
+Alex Morgan
+Email address
+alex.morgan@email.com
+Emergency contact
+Maya Morgan · +44 7700 900123
+CATEGORY / DISTANCE
+5 km 10 km · £35 Junior 2 km
+I accept the event waiver, terms and privacy policy.
+I confirm I am fit to participate.
+Entry £35 · Booking £0 £35
+Submit registration · £35
+Demo entry · No real booking or payment.
+Home Discover Track Profile
+9:41
+KINETRA CONFIRMED / 10
+CONFIRMED · DEMO
+Your next start line is set.
+YOU’RE
+
+ON THE LIST.
+Sample entry. No real booking or payment.
+REGISTRATION REFERENCE
+KTR-1024 View event details
+SUN 22 NOV 2026  ·  09:00
+22
+NOV
+Riverside 10K
+Victoria Park, London
+10 km · Road race £35
+Alex Morgan
+alex.morgan@email.com  ·  London, UK
+Add to calendar
+Return to Home
+Calendar action shown as a static preview.
+Home Discover Track Profile
+9:41
+KINETRA / LIVE GPS
+Victoria Park, London Estimated
+Route
+Victoria Park loop
+6.20 km · 29:33 elapsed
+ALEX MORGAN SIMULATED GPS · ESTIMATE
+29:33
+ELAPSED
+12.6
+MOVING KM/H
+Distance Avg pace
+6.20 km 4:46 /km
+↑ 34 m gain   /   Current 4:46 /km
+RECENT KM SPLITS   04  4:47    05  4:46    06  4:45
+Pause Finish
+GHOST RUNNER
+~54s behind your PB Estimate  →
+Victoria Park, London UK · 16 Nov 2026 · Demo
+Home Discover Track Profile
+KINETRA Paused GPS estimate
+Run paused.
+Alex Morgan · Victoria Park, London UK
+29:33 TIMER FROZEN
+Distance Avg pace
+6.20 km 4:46 /km
+0.0 km/h 34 m
+PAUSED SPEED ELEVATION GAIN
+Resume run Finish run
+FINISH CONFIRMATION
+Finish this activity?
+Save 6.20 km / 29:33 to your activity log.
+
+Tracking ends when you confirm.
+Confirm finish Keep running
+Discard run 16 Nov 2026 · Simulated GPS / estimate
+Home Discover Track Profile
+9:41
+KINETRA / COMPLETED DEMO
+Training complete
+Victoria Park · 16 Nov 2026 · Training demo
+47:36 GPS ESTIMATE
+Official time pending verification
+Distance Avg pace
+10.00 km 4:46 /km
+↑ 58 m elevation gain  /  Simulated GPS
+Kilometre splits
+KM
+01
+02
+03
+04
+05
+06
+07
+08
+09
+10
+NEGATIVE SPLIT
+First 6 km 4:48  /  Last 4 km 4:42 PB +1:24
+Share performance View analysis
+47:36 TOTAL
+PACE /KM
+4:52
+4:50
+4:48
+4:47
+4:46
+4:45
+4:44
+4:43
+4:41
+4:40
+Home Discover Track Profile
+KINETRA Simulated GPS Demo
+Ghost Runner
+CHASING YOUR 10K PERSONAL BEST
+54s BEHIND
+6.20 km  /  29:33 elapsed  /  Estimate
+PB ghost
+6 8 10
+km
+Official · demo
+0 2 4
+10K PB  46:12
+CHECKPOINT
+At 6.20 km You 29:33   /   PB 28:39
+PACE 4:46/km   /   9s/km slower
+12.6 km/h  /  +34 m  /  PB pace 4:37/km
+PROJECTED 10K FINISH  /  ESTIMATE
+47:40 1:28 behind PB
+To match 46:12: 4:23/km for the last 3.80 km.
+
+Prioritize a sustainable effort.
+Fictional PB record · Not medical advice
+
+Alex Morgan · London UK · 16 Nov 2026
+Home Discover Track Profile
+9:41
+KINETRA  /  AI INTELLIGENCE
+Performance analysis
+Alex Morgan · 16 Nov 2026 · Simulated GPS demo
+47:36 GPS  /  +58 m  /  Official time pending
+Completed run Avg pace
+10.00 km 4:46 /km
+Pace progression FASTER FINISH
+4:40
+4:46
+4:52
+1 km 4 km 7 km
+First 6 km  4:48  →  Last 4 km  4:42 /km
+12s SPLIT SPREAD
+4:52 slowest  /  4:40 fastest
+NEXT 10K  /  AI ESTIMATE
+46:50–48:10
+Illustrative range. Not an official result.
+ALEX’S RACE-WEEK FOCUS
+5 km easy, at conversational effort.
+
+Keep volume light before 22 Nov.
+Fictional AI guidance · Not medical advice
+Share analysis View results
+10 km
+Home Discover Track Profile
+9:41
+KINETRA / ATHLETE
+Athlete profile
+ATHLETE / DEMO
+Alex Morgan
+London, UK
+Running · Cycling
+10K / Half marathon
+LAST 7 DAYS · 10–16 NOV
+24.8 km · 4 sessions
+NEXT GOAL
+Break 46 minutes for 10K
+13 seconds to 45:59 · from official demo PB
+PERSONAL RECORDS
+5K 18:42 GPS estimate
+10K 46:12 Official · demo
+Half 1:38:04 Official · demo
+ACHIEVEMENTS / 2 UNLOCKED
+Sub-47 club     ·     London runner
+History Settings
+Organizer dashboard  ›
+Home Discover Track Profile
+9:41
+KINETRA / RACE LOG
+Event history
+Alex Morgan 16 NOV 2026 · DEMO
+UPCOMING / REGISTRATION
+Riverside 10K
+22 Nov 2026 · 09:00 · 10 km · £35
+Victoria Park, London · KTR-1024
+Completed activities 4 entries
+Parkland 10K
+08 Nov 2026 · 10 km
+Official · demo · PB
+46:12
+Details ›
+Canal 5K
+25 Oct 2026 · 5 km
+GPS estimate · PB
+18:42
+Details ›
+Thames Half
+18 Oct 2026 · 21.1 km
+Official · demo · PB
+1:38:04
+Details ›
+10km training
+16 Nov 2026 · 10 km
+GPS estimate · official pending
+47:36
+Details ›
+Detailed results
+Official = fictional organizer-verified demo results.
+
+GPS estimates are not official race results.
+Home Discover Track Profile
+9:41
+KINETRA / ACTIVITY
+Notifications
+2 unread 16 NOV 2026 · DEMO
+All updates Mark all read
+REMINDER · TODAY, 09:00
+Riverside 10K
+6 days to go · 22 Nov, 09:00
+Victoria Park, London · 10 km · £35
+View event  ›
+REGISTRATION · YESTERDAY, 18:12
+Your entry is confirmed
+Riverside 10K · KTR-1024 · £35 demo
+View entry  ›
+ACHIEVEMENT · 08 NOV
+New 10K best: 46:12
+Official · demo · Sub-47 club unlocked
+View achievement  ›
+ANNOUNCEMENT · 13 NOV
+Race-day briefing is ready
+Riverside 10K · Bag drop opens at 08:00
+Read announcement  ›
+Fictional demo updates · No live alerts or charges.
+Home Discover Track Profile
+9:41
+KINETRA Create event
+VICTORIA PARK ATHLETICS / DEMO
+Riverside 10K
+22 Nov 2026 · 09:00 · Victoria Park, London
+Edit event  › Timing
+Details, venue & fee Manage timing  ›
+22 Nov · 09:00 · £35 Pre-race · not started
+Results management  ›
+UNPUBLISHED · Publish locked until race ends
+Prepare imports & result rules · demo
+Registrations 69% capacity
+347 / 500 £12,145
+Entries · £35 each Entry value · demo
+Participants 3 of 347 · demo
+Alex Morgan
+KTR-1024 · Paid · Bib 142 assigned
+Jamie Reeves
+KTR-1025 · Paid · Bib pending
+Sara Kim
+KTR-1026 · Paid · Bib 144 assigned
+Registrations Participants
+Home Discover Track Profile
+9:41
+KINETRA / ACCOUNT
+Settings
+Alex Morgan
+alex.morgan@email.com
+PRIVACY
+Private profile
+Hide route start / end
+GPS PERMISSIONS
+Location access
+Not granted · background off
+CONNECTED DEVICES
+Demo sport watch
+SIMULATED · paired in demo
+Heart-rate monitor
+Not connected
+Demo pair
+PREFERENCES
+Event notifications
+Distance units Kilometres  ›
+Sign out
+Demo preferences · GPS simulated · no integrations.
+AI estimates are not medical advice.
+Home Discover Track Profile
+London, UK · Demo account
+›
+
+=== PDF CONTENT END ===
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
