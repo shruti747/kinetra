@@ -8,6 +8,9 @@
         android:minSdkVersion="24"
         android:targetSdkVersion="34" />
 
+    <!-- Allow the app to communicate with the PHP backend -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <permission
         android:name="com.kinetra.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
@@ -24,7 +27,8 @@
         android:roundIcon="@android:drawable/sym_def_app_icon"
         android:supportsRtl="true"
         android:testOnly="true"
-        android:theme="@style/Theme.Kinetra" >
+        android:theme="@style/Theme.Kinetra"
+        android:usesCleartextTraffic="true" >
         <activity
             android:name="com.kinetra.app.MainActivity"
             android:exported="true"

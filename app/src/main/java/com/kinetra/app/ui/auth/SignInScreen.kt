@@ -2,7 +2,6 @@ package com.kinetra.app.ui.auth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,6 +51,7 @@ fun SignInScreen(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.sp
                     )
+
                     Text(
                         text = "Back",
                         color = GlowBlueBright,
@@ -68,7 +68,9 @@ fun SignInScreen(
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Welcome back, athlete. Your next personal best is waiting.",
                     color = TextGray,
@@ -77,14 +79,20 @@ fun SignInScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Email field
-                Text(text = "Email address", color = TextGray, fontSize = 12.sp)
+                Text(
+                    text = "Email address",
+                    color = TextGray,
+                    fontSize = 12.sp
+                )
+
                 Spacer(modifier = Modifier.height(6.dp))
+
                 OutlinedTextField(
                     value = state.email,
                     onValueChange = { viewModel.updateEmail(it) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    enabled = !state.isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = GlowBlueBright,
                         unfocusedBorderColor = ButtonBorder,
@@ -98,14 +106,20 @@ fun SignInScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password field
-                Text(text = "Password", color = TextGray, fontSize = 12.sp)
+                Text(
+                    text = "Password",
+                    color = TextGray,
+                    fontSize = 12.sp
+                )
+
                 Spacer(modifier = Modifier.height(6.dp))
+
                 OutlinedTextField(
                     value = state.password,
                     onValueChange = { viewModel.updatePassword(it) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    enabled = !state.isLoading,
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = GlowBlueBright,
@@ -128,58 +142,108 @@ fun SignInScreen(
                         text = "Forgot Password?",
                         color = GlowBlueBright,
                         fontSize = 13.sp,
-                        modifier = Modifier.clickable { onForgotPasswordClick() }
+                        modifier = Modifier.clickable {
+                            onForgotPasswordClick()
+                        }
+                    )
+                }
+
+                if (state.errorMessage != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = state.errorMessage.orEmpty(),
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 13.sp
                     )
                 }
             }
 
-            // Bottom actions
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
-                    onClick = onSignInSuccess,
+                    onClick = {
+                        viewModel.login(onSuccess = onSignInSuccess)
+                    },
+                    enabled = !state.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = IndicatorActive)
-                ) {
-                    Text(
-                        text = "Sign in",
-                        color = TextWhite,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = IndicatorActive
                     )
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = TextWhite,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Sign in",
+                            color = TextWhite,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "New to Kinetra? ", color = TextGray, fontSize = 14.sp)
+                    Text(
+                        text = "New to Kinetra? ",
+                        color = TextGray,
+                        fontSize = 14.sp
+                    )
+
                     Text(
                         text = "Create an account",
                         color = GlowBlueBright,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onCreateAccountClick() }
+                        modifier = Modifier.clickable {
+                            onCreateAccountClick()
+                        }
                     )
                 }
 
-                // Demo account card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = ButtonBackground),
+                    colors = CardDefaults.cardColors(
+                        containerColor = ButtonBackground
+                    ),
                     border = BorderStroke(1.dp, ButtonBorder)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(text = "Demo account", color = TextGray, fontSize = 11.sp)
-                        Text(text = "${state.fullName} · London, UK", color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Column(
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Account login",
+                            color = TextGray,
+                            fontSize = 11.sp
+                        )
+
+                        Text(
+                            text = "Use your registered Kinetra account",
+                            color = TextWhite,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(text = "No real account or login is connected.", color = TextGray, fontSize = 11.sp)
+
+                        Text(
+                            text = "Your credentials will be checked against the server.",
+                            color = TextGray,
+                            fontSize = 11.sp
+                        )
                     }
                 }
             }

@@ -1,3 +1,4 @@
+
 package com.kinetra.app.ui.main
 
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ fun MainScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+
             // Top Bar
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -52,6 +54,7 @@ fun MainScreen(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.5.sp
                     )
+
                     Text(
                         text = "Welcome, ${uiState.userName}",
                         color = TextWhite,
@@ -64,9 +67,18 @@ fun MainScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
                         .background(ButtonBackground)
-                        .border(1.dp, ButtonBorder, RoundedCornerShape(50.dp))
-                        .clickableRipple { onBackToSplash() }
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .border(
+                            1.dp,
+                            ButtonBorder,
+                            RoundedCornerShape(50.dp)
+                        )
+                        .clickable {
+                            onBackToSplash()
+                        }
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -84,7 +96,9 @@ fun MainScreen(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = git add .Color(0xFF0F172A))
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF10182B)
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -103,21 +117,36 @@ fun MainScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        StatItem(label = "Total Distance", value = uiState.totalDistance)
-                        StatItem(label = "Avg Pace", value = uiState.avgPace)
-                        StatItem(label = "Active Runs", value = "${uiState.activeRunsCount}")
+                        StatItem(
+                            label = "Total Distance",
+                            value = uiState.totalDistance
+                        )
+
+                        StatItem(
+                            label = "Avg Pace",
+                            value = uiState.avgPace
+                        )
+
+                        StatItem(
+                            label = "Active Runs",
+                            value = "${uiState.activeRunsCount}"
+                        )
                     }
                 }
             }
 
             // Action Button
             Button(
-                onClick = { /* Start Run Action */ },
+                onClick = {
+                    // Start Run Action
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(26.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = IndicatorActive)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IndicatorActive
+                )
             ) {
                 Text(
                     text = "START NEW RUN",
@@ -141,7 +170,9 @@ fun StatItem(label: String, value: String) {
             color = TextGray,
             fontSize = 12.sp
         )
+
         Spacer(modifier = Modifier.height(4.dp))
+
         Text(
             text = value,
             color = TextWhite,
@@ -149,9 +180,4 @@ fun StatItem(label: String, value: String) {
             fontWeight = FontWeight.Bold
         )
     }
-}
-
-@Composable
-fun Modifier.clickableRipple(onClick: () -> Unit): Modifier {
-    return this.clickable(onClick = onClick)
 }
