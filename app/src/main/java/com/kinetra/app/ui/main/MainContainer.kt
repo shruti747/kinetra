@@ -1,5 +1,6 @@
 package com.kinetra.app.ui.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,13 +26,14 @@ sealed class Screen {
     object Welcome : Screen()
     object SignIn : Screen()
     object PasswordRecovery : Screen()
-    object MainContent : Screen( )
+    object MainContent : Screen()
     object RaceDay : Screen()
     object RaceEntry : Screen()
     object RaceConfirmed : Screen()
     object AiIntelligence : Screen()
     object RaceLog : Screen()
     object Notifications : Screen()
+    object EditProfile : Screen()
     object Settings : Screen()
     object OrganizerDashboard : Screen()
 }
@@ -43,18 +45,88 @@ enum class BottomTab(val title: String) {
     PROFILE("Profile")
 }
 
+data class NavDestination(
+    val screen: Screen,
+    val tab: BottomTab = BottomTab.HOME
+)
+
 @Composable
 fun MainContainer() {
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.MainContent) }
-    var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
+    // Navigation back-stack preserving complete navigation history
+    val backStack = remember {
+        mutableStateListOf(NavDestination(Screen.MainContent, BottomTab.HOME))
+    }
+
+    val currentDestination = backStack.lastOrNull() ?: NavDestination(Screen.MainContent, BottomTab.HOME)
+    val currentScreen = currentDestination.screen
+    val selectedTab = currentDestination.tab
 
     val authViewModel = remember { AuthViewModel() }
     val homeViewModel = remember { HomeViewModel() }
     val discoverViewModel = remember { DiscoverViewModel() }
     val trackViewModel = remember { TrackViewModel() }
     val profileViewModel = remember { ProfileViewModel() }
+    val notificationsViewModel = remember { NotificationsViewModel() }
     val raceViewModel = remember { RaceViewModel() }
     val aiViewModel = remember { AiIntelligenceViewModel() }
+
+    fun navigateTo(screen: Screen, tab: BottomTab = selectedTab) {
+        val dest = NavDestination(screen, tab)
+        if (backStack.lastOrNull() != dest) {
+            backStack.add(dest)
+        }
+    }
+
+    fun navigateToTab(tab: BottomTab) {
+        if (currentScreen == Screen.MainContent && selectedTab == tab) return
+
+        if (tab == BottomTab.HOME) {
+            // Return to root Home tab: clear secondary tabs and sub-screens
+            backStack.clear()
+            backStack.add(NavDestination(Screen.MainContent, BottomTab.HOME))
+        } else {
+            // Ensure Home is base of stack
+            if (backStack.isEmpty() || backStack.first().screen != Screen.MainContent || backStack.first().tab != BottomTab.HOME) {
+                backStack.clear()
+                backStack.add(NavDestination(Screen.MainContent, BottomTab.HOME))
+            }
+            // Remove previous instances of this tab to prevent redundant duplicates
+            backStack.removeAll { it.screen == Screen.MainContent && it.tab == tab }
+            backStack.add(NavDestination(Screen.MainContent, tab))
+        }
+    }
+
+    fun navigateBack() {
+        if (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+        } else if (backStack.size == 1 &&
+            backStack.first().screen == Screen.MainContent &&
+            backStack.first().tab != BottomTab.HOME
+        ) {
+            // If on a secondary tab and it's the only entry, return to root Home
+            backStack.clear()
+            backStack.add(NavDestination(Screen.MainContent, BottomTab.HOME))
+        }
+    }
+
+    fun resetToRoot() {
+        backStack.clear()
+        backStack.add(NavDestination(Screen.MainContent, BottomTab.HOME))
+    }
+
+    fun resetToWelcome() {
+        backStack.clear()
+        backStack.add(NavDestination(Screen.Welcome))
+    }
+
+    // Only allow BackHandler when not at the root screen
+    val canGoBack = backStack.size > 1 ||
+        (backStack.size == 1 && backStack.first().screen == Screen.MainContent && backStack.first().tab != BottomTab.HOME)
+
+    // Intercept hardware Back button and gesture navigation
+    BackHandler(enabled = canGoBack) {
+        navigateBack()
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -64,52 +136,58 @@ fun MainContainer() {
             // Main content based on current screen
             when (currentScreen) {
                 is Screen.Welcome -> WelcomeScreen(
-                    onCreateAccountClick = { currentScreen = Screen.SignIn },
-                    onSignInClick = { currentScreen = Screen.SignIn },
-                    onGoogleSignInClick = { currentScreen = Screen.MainContent },
-                    onDemoSkip = { currentScreen = Screen.MainContent }
+                    onCreateAccountClick = { navigateTo(Screen.SignIn) },
+                    onSignInClick = { navigateTo(Screen.SignIn) },
+                    onGoogleSignInClick = { resetToRoot() },
+                    onDemoSkip = { resetToRoot() }
                 )
                 is Screen.SignIn -> SignInScreen(
                     viewModel = authViewModel,
-                    onSignInSuccess = { currentScreen = Screen.MainContent; selectedTab = BottomTab.HOME },
-                    onForgotPasswordClick = { currentScreen = Screen.PasswordRecovery },
-                    onCreateAccountClick = { currentScreen = Screen.SignIn },
-                    onBack = { currentScreen = Screen.Welcome }
+                    onSignInSuccess = { resetToRoot() },
+                    onForgotPasswordClick = { navigateTo(Screen.PasswordRecovery) },
+                    onCreateAccountClick = { navigateTo(Screen.SignIn) },
+                    onBack = { navigateBack() }
                 )
                 is Screen.PasswordRecovery -> PasswordRecoveryScreen(
                     viewModel = authViewModel,
-                    onBackToSignIn = { currentScreen = Screen.SignIn }
+                    onBackToSignIn = { navigateBack() }
                 )
                 is Screen.RaceDay -> RaceDayScreen(
                     viewModel = raceViewModel,
-                    onRegisterClick = { currentScreen = Screen.RaceEntry },
-                    onBack = { currentScreen = Screen.MainContent }
+                    onRegisterClick = { navigateTo(Screen.RaceEntry) },
+                    onBack = { navigateBack() }
                 )
                 is Screen.RaceEntry -> RaceEntryScreen(
                     viewModel = raceViewModel,
-                    onSubmitSuccess = { currentScreen = Screen.RaceConfirmed },
-                    onBack = { currentScreen = Screen.RaceDay }
+                    onSubmitSuccess = { navigateTo(Screen.RaceConfirmed) },
+                    onBack = { navigateBack() }
                 )
                 is Screen.RaceConfirmed -> ConfirmedScreen(
                     viewModel = raceViewModel,
-                    onReturnHome = { currentScreen = Screen.MainContent; selectedTab = BottomTab.HOME }
+                    onReturnHome = { resetToRoot() }
                 )
                 is Screen.AiIntelligence -> AiIntelligenceScreen(
                     viewModel = aiViewModel,
-                    onBack = { currentScreen = Screen.MainContent }
+                    onBack = { navigateBack() }
                 )
                 is Screen.RaceLog -> RaceLogScreen(
-                    onBack = { currentScreen = Screen.MainContent; selectedTab = BottomTab.PROFILE }
+                    onBack = { navigateBack() }
                 )
                 is Screen.Notifications -> NotificationsScreen(
-                    onBack = { currentScreen = Screen.MainContent; selectedTab = BottomTab.PROFILE }
+                    viewModel = notificationsViewModel,
+                    onBack = { navigateBack() }
+                )
+                is Screen.EditProfile -> EditProfileScreen(
+                    viewModel = profileViewModel,
+                    onBack = { navigateBack() },
+                    onSaveSuccess = { navigateBack() }
                 )
                 is Screen.Settings -> SettingsScreen(
-                    onBack = { currentScreen = Screen.MainContent; selectedTab = BottomTab.PROFILE },
-                    onSignOut = { currentScreen = Screen.Welcome }
+                    onBack = { navigateBack() },
+                    onSignOut = { resetToWelcome() }
                 )
                 is Screen.OrganizerDashboard -> OrganizerDashboardScreen(
-                    onBack = { currentScreen = Screen.MainContent; selectedTab = BottomTab.PROFILE }
+                    onBack = { navigateBack() }
                 )
                 is Screen.MainContent -> {
                     Scaffold(
@@ -121,7 +199,7 @@ fun MainContainer() {
                                 BottomTab.values().forEach { tab ->
                                     NavigationBarItem(
                                         selected = selectedTab == tab,
-                                        onClick = { selectedTab = tab },
+                                        onClick = { navigateToTab(tab) },
                                         icon = {
                                             // Simple indicator or initial letter
                                             Box(
@@ -153,24 +231,27 @@ fun MainContainer() {
                             when (selectedTab) {
                                 BottomTab.HOME -> HomeScreen(
                                     viewModel = homeViewModel,
-                                    onStartRunClick = { selectedTab = BottomTab.TRACK },
-                                    onRaceDetailsClick = { currentScreen = Screen.RaceDay },
-                                    onAiIntelligenceClick = { currentScreen = Screen.AiIntelligence }
+                                    onStartRunClick = { navigateToTab(BottomTab.TRACK) },
+                                    onRaceDetailsClick = { navigateTo(Screen.RaceDay) },
+                                    onAiIntelligenceClick = { navigateTo(Screen.AiIntelligence) },
+                                    onNotificationsClick = { navigateTo(Screen.Notifications) },
+                                    unreadNotificationsCount = notificationsViewModel.uiState.collectAsState().value.unreadCount
                                 )
                                 BottomTab.DISCOVER -> DiscoverScreen(
                                     viewModel = discoverViewModel,
-                                    onEventClick = { currentScreen = Screen.RaceDay }
+                                    onEventClick = { navigateTo(Screen.RaceDay) }
                                 )
                                 BottomTab.TRACK -> TrackScreen(
                                     viewModel = trackViewModel,
-                                    onViewAnalysis = { currentScreen = Screen.AiIntelligence }
+                                    onViewAnalysis = { navigateTo(Screen.AiIntelligence) }
                                 )
                                 BottomTab.PROFILE -> ProfileScreen(
                                     viewModel = profileViewModel,
-                                    onHistoryClick = { currentScreen = Screen.RaceLog },
-                                    onSettingsClick = { currentScreen = Screen.Settings },
-                                    onOrganizerClick = { currentScreen = Screen.OrganizerDashboard },
-                                    onNotificationsClick = { currentScreen = Screen.Notifications }
+                                    onHistoryClick = { navigateTo(Screen.RaceLog) },
+                                    onSettingsClick = { navigateTo(Screen.Settings) },
+                                    onOrganizerClick = { navigateTo(Screen.OrganizerDashboard) },
+                                    onNotificationsClick = { navigateTo(Screen.Notifications) },
+                                    onEditProfileClick = { navigateTo(Screen.EditProfile) }
                                 )
                             }
                         }

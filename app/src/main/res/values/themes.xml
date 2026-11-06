@@ -1,7 +1,18 @@
 <resources>
+    <!-- Base application theme -->
     <style name="Theme.Kinetra" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/splash_background</item>
         <item name="android:statusBarColor">@color/splash_background</item>
         <item name="android:navigationBarColor">@color/splash_background</item>
+    </style>
+
+    <!-- Official AndroidX SplashScreen Theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash background to Kinetra's brand dark #050811 -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <!-- Center Kinetra brand logo -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_kinetra_splash_logo</item>
+        <!-- Post-splash theme to switch to when app initialization is complete -->
+        <item name="postSplashScreenTheme">@style/Theme.Kinetra</item>
     </style>
 </resources>

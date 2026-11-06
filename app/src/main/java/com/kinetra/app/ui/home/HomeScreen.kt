@@ -6,8 +6,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +27,9 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     onStartRunClick: () -> Unit,
     onRaceDetailsClick: () -> Unit,
-    onAiIntelligenceClick: () -> Unit
+    onAiIntelligenceClick: () -> Unit,
+    onNotificationsClick: () -> Unit = {},
+    unreadNotificationsCount: Int = 0
 ) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -64,19 +69,52 @@ fun HomeScreen(
                     )
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(ButtonBackground)
-                        .border(1.dp, ButtonBorder, RoundedCornerShape(50.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "DEMO",
-                        color = GlowBlueBright,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    // Notification Bell with unread badge
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(ButtonBackground)
+                            .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
+                            .clickable { onNotificationsClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Notifications,
+                            contentDescription = "Notifications",
+                            tint = if (unreadNotificationsCount > 0) ElectricCyan else TextGray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        if (unreadNotificationsCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(5.dp)
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(AthleticRed)
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(ButtonBackground)
+                            .border(1.dp, ButtonBorder, RoundedCornerShape(50.dp))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "DEMO",
+                            color = GlowBlueBright,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 

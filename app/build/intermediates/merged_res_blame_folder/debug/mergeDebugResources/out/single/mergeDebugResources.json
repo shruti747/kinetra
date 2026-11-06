@@ -1,6 +1,14 @@
 [
     {
-        "merged": "com.kinetra.app-debug-44:/mipmap_ic_launcher.xml.flat",
-        "source": "com.kinetra.app-main-46:/mipmap/ic_launcher.xml"
+        "merged": "C:\\Users\\SCAD\\.gradle\\daemon\\9.6.0\\com.kinetra.app-debug-45:\\drawable_ic_kinetra_splash_logo.xml.flat",
+        "source": "C:\\Users\\SCAD\\.gradle\\daemon\\9.6.0\\com.kinetra.app-main-47:\\drawable\\ic_kinetra_splash_logo.xml"
+    },
+    {
+        "merged": "C:\\Users\\SCAD\\.gradle\\daemon\\9.6.0\\com.kinetra.app-debug-45:\\mipmap_ic_launcher.xml.flat",
+        "source": "C:\\Users\\SCAD\\.gradle\\daemon\\9.6.0\\com.kinetra.app-main-47:\\mipmap\\ic_launcher.xml"
+    },
+    {
+        "merged": "com.kinetra.app-debug-45:/drawable_ic_kinetra_splash_logo.xml.flat",
+        "source": "com.kinetra.app-main-47:/drawable/ic_kinetra_splash_logo.xml"
     }
 ]

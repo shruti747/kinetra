@@ -2,6 +2,14 @@
 <resources>
     <color name="splash_background">#050811</color>
     <string name="app_name">Kinetra</string>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_kinetra_splash_logo</item>
+        
+        <item name="postSplashScreenTheme">@style/Theme.Kinetra</item>
+    </style>
     <style name="Theme.Kinetra" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/splash_background</item>
         <item name="android:statusBarColor">@color/splash_background</item>
