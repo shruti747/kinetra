@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,7 +30,8 @@ fun HomeScreen(
     onRaceDetailsClick: () -> Unit,
     onAiIntelligenceClick: () -> Unit,
     onNotificationsClick: () -> Unit = {},
-    unreadNotificationsCount: Int = 0
+    unreadNotificationsCount: Int = 0,
+    onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -53,20 +55,42 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = "Morning, ${state.athleteName}.",
-                        color = TextWhite,
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "${state.dateString}  /  ${state.locationString}",
-                        color = TextGray,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(ButtonBackground)
+                            .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
+                            .clickable { onMenuClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Menu",
+                            tint = TextWhite,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Morning, ${state.athleteName}.",
+                            color = TextWhite,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "${state.dateString}  /  ${state.locationString}",
+                            color = TextGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
                 Row(

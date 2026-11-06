@@ -13,9 +13,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.kinetra.app.tracking.repository.WorkoutRepository
 import com.kinetra.app.ui.main.MainContainer
 import com.kinetra.app.ui.splash.KinetraAnimatedSplashScreen
 import com.kinetra.app.ui.theme.KinetraTheme
+import com.kinetra.app.wearable.WearableManager
 
 class MainActivity : ComponentActivity() {
 
@@ -24,6 +26,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+        // Initialize wearable sensor manager & local workout repository
+        WearableManager.initialize(this)
+        WorkoutRepository.initialize(this)
 
         setContent {
             KinetraTheme {

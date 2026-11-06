@@ -12,8 +12,11 @@ import androidx.compose.ui.unit.sp
 import com.kinetra.app.ui.ai.AiIntelligenceScreen
 import com.kinetra.app.ui.ai.AiIntelligenceViewModel
 import com.kinetra.app.ui.auth.*
+import com.kinetra.app.ui.devices.ConnectedDevicesScreen
+import com.kinetra.app.ui.devices.ConnectedDevicesViewModel
 import com.kinetra.app.ui.discover.DiscoverScreen
 import com.kinetra.app.ui.discover.DiscoverViewModel
+import com.kinetra.app.ui.drawer.*
 import com.kinetra.app.ui.home.HomeScreen
 import com.kinetra.app.ui.home.HomeViewModel
 import com.kinetra.app.ui.profile.*
@@ -21,6 +24,9 @@ import com.kinetra.app.ui.race.*
 import com.kinetra.app.ui.theme.*
 import com.kinetra.app.ui.track.TrackScreen
 import com.kinetra.app.ui.track.TrackViewModel
+import com.kinetra.app.ui.tracking.LiveTrackingScreen
+import com.kinetra.app.ui.tracking.LiveTrackingViewModel
+import kotlinx.coroutines.launch
 
 sealed class Screen {
     object Welcome : Screen()
@@ -36,6 +42,13 @@ sealed class Screen {
     object EditProfile : Screen()
     object Settings : Screen()
     object OrganizerDashboard : Screen()
+    object LiveTracking : Screen()
+    object ConnectedDevices : Screen()
+    object WorkoutHistory : Screen()
+    object MyGoals : Screen()
+    object Challenges : Screen()
+    object Achievements : Screen()
+    object HelpSupport : Screen()
 }
 
 enum class BottomTab(val title: String) {
@@ -61,6 +74,9 @@ fun MainContainer() {
     val currentScreen = currentDestination.screen
     val selectedTab = currentDestination.tab
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
     val authViewModel = remember { AuthViewModel() }
     val homeViewModel = remember { HomeViewModel() }
     val discoverViewModel = remember { DiscoverViewModel() }
@@ -69,6 +85,8 @@ fun MainContainer() {
     val notificationsViewModel = remember { NotificationsViewModel() }
     val raceViewModel = remember { RaceViewModel() }
     val aiViewModel = remember { AiIntelligenceViewModel() }
+    val liveTrackingViewModel = remember { LiveTrackingViewModel() }
+    val devicesViewModel = remember { ConnectedDevicesViewModel() }
 
     fun navigateTo(screen: Screen, tab: BottomTab = selectedTab) {
         val dest = NavDestination(screen, tab)
@@ -119,140 +137,189 @@ fun MainContainer() {
         backStack.add(NavDestination(Screen.Welcome))
     }
 
-    // Only allow BackHandler when not at the root screen
-    val canGoBack = backStack.size > 1 ||
+    // Only allow BackHandler when not at the root screen or when drawer is open
+    val canGoBack = drawerState.isOpen || backStack.size > 1 ||
         (backStack.size == 1 && backStack.first().screen == Screen.MainContent && backStack.first().tab != BottomTab.HOME)
 
     // Intercept hardware Back button and gesture navigation
     BackHandler(enabled = canGoBack) {
-        navigateBack()
+        if (drawerState.isOpen) {
+            coroutineScope.launch { drawerState.close() }
+        } else {
+            navigateBack()
+        }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = BackgroundDark
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = currentScreen == Screen.MainContent,
+        drawerContent = {
+            KinetraDrawerContent(
+                currentScreen = currentScreen,
+                onNavigate = { screen ->
+                    coroutineScope.launch { drawerState.close() }
+                    if (screen == Screen.MainContent) {
+                        navigateToTab(BottomTab.HOME)
+                    } else {
+                        navigateTo(screen)
+                    }
+                },
+                onCloseDrawer = {
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+        }
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Main content based on current screen
-            when (currentScreen) {
-                is Screen.Welcome -> WelcomeScreen(
-                    onCreateAccountClick = { navigateTo(Screen.SignIn) },
-                    onSignInClick = { navigateTo(Screen.SignIn) },
-                    onGoogleSignInClick = { resetToRoot() },
-                    onDemoSkip = { resetToRoot() }
-                )
-                is Screen.SignIn -> SignInScreen(
-                    viewModel = authViewModel,
-                    onSignInSuccess = { resetToRoot() },
-                    onForgotPasswordClick = { navigateTo(Screen.PasswordRecovery) },
-                    onCreateAccountClick = { navigateTo(Screen.SignIn) },
-                    onBack = { navigateBack() }
-                )
-                is Screen.PasswordRecovery -> PasswordRecoveryScreen(
-                    viewModel = authViewModel,
-                    onBackToSignIn = { navigateBack() }
-                )
-                is Screen.RaceDay -> RaceDayScreen(
-                    viewModel = raceViewModel,
-                    onRegisterClick = { navigateTo(Screen.RaceEntry) },
-                    onBack = { navigateBack() }
-                )
-                is Screen.RaceEntry -> RaceEntryScreen(
-                    viewModel = raceViewModel,
-                    onSubmitSuccess = { navigateTo(Screen.RaceConfirmed) },
-                    onBack = { navigateBack() }
-                )
-                is Screen.RaceConfirmed -> ConfirmedScreen(
-                    viewModel = raceViewModel,
-                    onReturnHome = { resetToRoot() }
-                )
-                is Screen.AiIntelligence -> AiIntelligenceScreen(
-                    viewModel = aiViewModel,
-                    onBack = { navigateBack() }
-                )
-                is Screen.RaceLog -> RaceLogScreen(
-                    onBack = { navigateBack() }
-                )
-                is Screen.Notifications -> NotificationsScreen(
-                    viewModel = notificationsViewModel,
-                    onBack = { navigateBack() }
-                )
-                is Screen.EditProfile -> EditProfileScreen(
-                    viewModel = profileViewModel,
-                    onBack = { navigateBack() },
-                    onSaveSuccess = { navigateBack() }
-                )
-                is Screen.Settings -> SettingsScreen(
-                    onBack = { navigateBack() },
-                    onSignOut = { resetToWelcome() }
-                )
-                is Screen.OrganizerDashboard -> OrganizerDashboardScreen(
-                    onBack = { navigateBack() }
-                )
-                is Screen.MainContent -> {
-                    Scaffold(
-                        bottomBar = {
-                            NavigationBar(
-                                containerColor = ButtonBackground,
-                                tonalElevation = 8.dp
-                            ) {
-                                BottomTab.values().forEach { tab ->
-                                    NavigationBarItem(
-                                        selected = selectedTab == tab,
-                                        onClick = { navigateToTab(tab) },
-                                        icon = {
-                                            // Simple indicator or initial letter
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(8.dp)
-                                                    .background(
-                                                        if (selectedTab == tab) GlowBlueBright else TextGray,
-                                                        RoundedCornerShape(4.dp)
-                                                    )
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = BackgroundDark
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Main content based on current screen
+                when (currentScreen) {
+                    is Screen.Welcome -> WelcomeScreen(
+                        onCreateAccountClick = { navigateTo(Screen.SignIn) },
+                        onSignInClick = { navigateTo(Screen.SignIn) },
+                        onGoogleSignInClick = { resetToRoot() },
+                        onDemoSkip = { resetToRoot() }
+                    )
+                    is Screen.SignIn -> SignInScreen(
+                        viewModel = authViewModel,
+                        onSignInSuccess = { resetToRoot() },
+                        onForgotPasswordClick = { navigateTo(Screen.PasswordRecovery) },
+                        onCreateAccountClick = { navigateTo(Screen.SignIn) },
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.PasswordRecovery -> PasswordRecoveryScreen(
+                        viewModel = authViewModel,
+                        onBackToSignIn = { navigateBack() }
+                    )
+                    is Screen.RaceDay -> RaceDayScreen(
+                        viewModel = raceViewModel,
+                        onRegisterClick = { navigateTo(Screen.RaceEntry) },
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.RaceEntry -> RaceEntryScreen(
+                        viewModel = raceViewModel,
+                        onSubmitSuccess = { navigateTo(Screen.RaceConfirmed) },
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.RaceConfirmed -> ConfirmedScreen(
+                        viewModel = raceViewModel,
+                        onReturnHome = { resetToRoot() }
+                    )
+                    is Screen.AiIntelligence -> AiIntelligenceScreen(
+                        viewModel = aiViewModel,
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.RaceLog -> RaceLogScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.Notifications -> NotificationsScreen(
+                        viewModel = notificationsViewModel,
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.EditProfile -> EditProfileScreen(
+                        viewModel = profileViewModel,
+                        onBack = { navigateBack() },
+                        onSaveSuccess = { navigateBack() }
+                    )
+                    is Screen.Settings -> SettingsScreen(
+                        onBack = { navigateBack() },
+                        onSignOut = { resetToWelcome() }
+                    )
+                    is Screen.OrganizerDashboard -> OrganizerDashboardScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.LiveTracking -> LiveTrackingScreen(
+                        viewModel = liveTrackingViewModel,
+                        onBack = { navigateBack() },
+                        onDevicesClick = { navigateTo(Screen.ConnectedDevices) }
+                    )
+                    is Screen.ConnectedDevices -> ConnectedDevicesScreen(
+                        viewModel = devicesViewModel,
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.WorkoutHistory -> WorkoutHistoryScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.MyGoals -> MyGoalsScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.Challenges -> ChallengesScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.Achievements -> AchievementsScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.HelpSupport -> HelpSupportScreen(
+                        onBack = { navigateBack() }
+                    )
+                    is Screen.MainContent -> {
+                        Scaffold(
+                            bottomBar = {
+                                NavigationBar(
+                                    containerColor = ButtonBackground,
+                                    tonalElevation = 8.dp
+                                ) {
+                                    BottomTab.values().forEach { tab ->
+                                        NavigationBarItem(
+                                            selected = selectedTab == tab,
+                                            onClick = { navigateToTab(tab) },
+                                            icon = {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(8.dp)
+                                                        .background(
+                                                            if (selectedTab == tab) GlowBlueBright else TextGray,
+                                                            RoundedCornerShape(4.dp)
+                                                        )
+                                                )
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = tab.title,
+                                                    color = if (selectedTab == tab) TextWhite else TextGray,
+                                                    fontSize = 11.sp
+                                                )
+                                            },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                indicatorColor = ButtonBorder
                                             )
-                                        },
-                                        label = {
-                                            Text(
-                                                text = tab.title,
-                                                color = if (selectedTab == tab) TextWhite else TextGray,
-                                                fontSize = 11.sp
-                                            )
-                                        },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            indicatorColor = ButtonBorder
                                         )
+                                    }
+                                }
+                            },
+                            containerColor = BackgroundDark
+                        ) { innerPadding ->
+                            Box(modifier = Modifier.padding(innerPadding)) {
+                                when (selectedTab) {
+                                    BottomTab.HOME -> HomeScreen(
+                                        viewModel = homeViewModel,
+                                        onStartRunClick = { navigateTo(Screen.LiveTracking) },
+                                        onRaceDetailsClick = { navigateTo(Screen.RaceDay) },
+                                        onAiIntelligenceClick = { navigateTo(Screen.AiIntelligence) },
+                                        onNotificationsClick = { navigateTo(Screen.Notifications) },
+                                        unreadNotificationsCount = notificationsViewModel.uiState.collectAsState().value.unreadCount,
+                                        onMenuClick = { coroutineScope.launch { drawerState.open() } }
+                                    )
+                                    BottomTab.DISCOVER -> DiscoverScreen(
+                                        viewModel = discoverViewModel,
+                                        onEventClick = { navigateTo(Screen.RaceDay) }
+                                    )
+                                    BottomTab.TRACK -> TrackScreen(
+                                        viewModel = trackViewModel,
+                                        onViewAnalysis = { navigateTo(Screen.AiIntelligence) }
+                                    )
+                                    BottomTab.PROFILE -> ProfileScreen(
+                                        viewModel = profileViewModel,
+                                        onHistoryClick = { navigateTo(Screen.RaceLog) },
+                                        onSettingsClick = { navigateTo(Screen.Settings) },
+                                        onOrganizerClick = { navigateTo(Screen.OrganizerDashboard) },
+                                        onNotificationsClick = { navigateTo(Screen.Notifications) },
+                                        onEditProfileClick = { navigateTo(Screen.EditProfile) }
                                     )
                                 }
-                            }
-                        },
-                        containerColor = BackgroundDark
-                    ) { innerPadding ->
-                        Box(modifier = Modifier.padding(innerPadding)) {
-                            when (selectedTab) {
-                                BottomTab.HOME -> HomeScreen(
-                                    viewModel = homeViewModel,
-                                    onStartRunClick = { navigateToTab(BottomTab.TRACK) },
-                                    onRaceDetailsClick = { navigateTo(Screen.RaceDay) },
-                                    onAiIntelligenceClick = { navigateTo(Screen.AiIntelligence) },
-                                    onNotificationsClick = { navigateTo(Screen.Notifications) },
-                                    unreadNotificationsCount = notificationsViewModel.uiState.collectAsState().value.unreadCount
-                                )
-                                BottomTab.DISCOVER -> DiscoverScreen(
-                                    viewModel = discoverViewModel,
-                                    onEventClick = { navigateTo(Screen.RaceDay) }
-                                )
-                                BottomTab.TRACK -> TrackScreen(
-                                    viewModel = trackViewModel,
-                                    onViewAnalysis = { navigateTo(Screen.AiIntelligence) }
-                                )
-                                BottomTab.PROFILE -> ProfileScreen(
-                                    viewModel = profileViewModel,
-                                    onHistoryClick = { navigateTo(Screen.RaceLog) },
-                                    onSettingsClick = { navigateTo(Screen.Settings) },
-                                    onOrganizerClick = { navigateTo(Screen.OrganizerDashboard) },
-                                    onNotificationsClick = { navigateTo(Screen.Notifications) },
-                                    onEditProfileClick = { navigateTo(Screen.EditProfile) }
-                                )
                             }
                         }
                     }
