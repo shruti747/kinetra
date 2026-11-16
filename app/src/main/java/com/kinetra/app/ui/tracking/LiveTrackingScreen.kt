@@ -57,11 +57,20 @@ fun LiveTrackingScreen(
 
     var showStopDialog by remember { mutableStateOf(false) }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            if (trackingState == TrackingState.FINISHED) {
+                viewModel.resetTracking()
+            }
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { perms ->
         val fineGranted = perms[Manifest.permission.ACCESS_FINE_LOCATION] == true
-        if (fineGranted) {
+        val coarseGranted = perms[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (fineGranted || coarseGranted) {
             viewModel.startTracking(context)
         }
     }
@@ -95,7 +104,12 @@ fun LiveTrackingScreen(
                             .clip(RoundedCornerShape(12.dp))
                             .background(ButtonBackground)
                             .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                            .clickable { onBack() },
+                            .clickable {
+                                if (trackingState == TrackingState.FINISHED) {
+                                    viewModel.resetTracking()
+                                }
+                                onBack()
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -408,15 +422,18 @@ fun LiveTrackingScreen(
                     Button(
                         onClick = {
                             val finePerm = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                            if (finePerm == PackageManager.PERMISSION_GRANTED) {
+                            val coarsePerm = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            if (finePerm == PackageManager.PERMISSION_GRANTED || coarsePerm == PackageManager.PERMISSION_GRANTED) {
                                 viewModel.startTracking(context)
                             } else {
-                                permissionLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION
-                                    )
+                                val perms = mutableListOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
                                 )
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                    perms.add(Manifest.permission.POST_NOTIFICATIONS)
+                                }
+                                permissionLauncher.launch(perms.toTypedArray())
                             }
                         },
                         modifier = Modifier
@@ -512,15 +529,34 @@ fun LiveTrackingScreen(
                 }
 
                 TrackingState.FINISHED -> {
-                    Button(
-                        onClick = { onBack() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue),
-                        shape = RoundedCornerShape(16.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("VIEW IN WORKOUT HISTORY", color = TextWhite, fontWeight = FontWeight.Bold)
+                        Button(
+                            onClick = { viewModel.resetTracking() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = AthleticGreen),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("NEW WORKOUT", color = BackgroundDark, fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = {
+                                viewModel.resetTracking()
+                                onBack()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("DONE", color = TextWhite, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }

@@ -10,9 +10,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Physical Motion & Wearable Health Sensors -->
+    <!-- Physical Motion & Sensor Sampling -->
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
 
     <!-- Bluetooth & Wearable Companion Permissions -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
@@ -23,7 +24,6 @@
     <!-- Android 14 Foreground Service Requirements -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -52,7 +52,7 @@
             android:name=".tracking.service.TrackingForegroundService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="location|health" />
+            android:foregroundServiceType="location" />
 
     </application>
 

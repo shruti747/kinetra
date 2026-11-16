@@ -37,19 +37,23 @@ class LiveTrackingViewModel : ViewModel() {
     }
 
     fun startTracking(context: Context) {
+        if (trackingState.value == TrackingState.TRACKING) return
         workoutStartTime = System.currentTimeMillis()
         TrackingForegroundService.start(context, _selectedActivity.value)
     }
 
     fun pauseTracking(context: Context) {
+        if (trackingState.value != TrackingState.TRACKING) return
         TrackingForegroundService.pause(context)
     }
 
     fun resumeTracking(context: Context) {
+        if (trackingState.value != TrackingState.PAUSED) return
         TrackingForegroundService.resume(context)
     }
 
     fun stopTracking(context: Context): WorkoutSession? {
+        if (trackingState.value == TrackingState.IDLE) return null
         val currentMetrics = liveMetrics.value
         val currentRoute = routePoints.value
         val endTime = System.currentTimeMillis()
@@ -78,6 +82,10 @@ class LiveTrackingViewModel : ViewModel() {
 
         WorkoutRepository.saveWorkout(session)
         return session
+    }
+
+    fun resetTracking() {
+        TrackingForegroundService.resetToIdle()
     }
 }
 

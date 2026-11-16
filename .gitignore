@@ -1,0 +1,13 @@
+# Gradle generated files
+.gradle/
+**/build/
+
+# Local Android SDK path
+local.properties
+
+# Android Studio user-specific files
+.idea/caches/
+.idea/workspace.xml
+.idea/deviceStreaming.xml
+.idea/shelf/
+*.iml
