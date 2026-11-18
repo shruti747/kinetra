@@ -1,20 +1,20 @@
 package com.kinetra.app.ui.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.KinetraAppBadge
+import com.kinetra.app.ui.components.KinetraButton
+import com.kinetra.app.ui.components.KinetraOutlinedButton
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -28,7 +28,7 @@ fun WelcomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Column(
             modifier = Modifier
@@ -38,125 +38,128 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top branding
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(modifier = Modifier.height(32.dp))
+            // Top Official Brand Identity
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 24.dp)
+            ) {
+                KinetraAppBadge(size = 64.dp, cornerRadius = 16.dp)
+                Spacer(modifier = Modifier.height(14.dp))
                 Text(
-                    text = "KINETRA ATHLETE INTELLIGENCE",
-                    color = TextGray,
-                    fontSize = 12.sp,
+                    text = "KINETRA",
+                    color = TextWhite,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 5.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "SPORTS & FITNESS",
+                    color = BrandAccentText,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
+                    letterSpacing = 2.5.sp
                 )
             }
 
-            // Center Hero
+            // Center Editorial Hero
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 Text(
-                    text = "TRACK YOUR\nPROGRESS. BEAT\nYOUR BEST.",
+                    text = "TRAIN WITH\nPRECISION.\nOWN EVERY MILE.",
                     color = TextWhite,
-                    fontSize = 36.sp,
+                    fontSize = 34.sp,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
-                    lineHeight = 42.sp
+                    lineHeight = 40.sp,
+                    letterSpacing = (-0.5).sp
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
                 Text(
-                    text = "Turn every run into progress with GPS tracking,\nrace-day tools and AI-powered insights.",
+                    text = "Track walking, running and cycling with live GPS telemetry, race-day tools and performance insights.",
                     color = TextGray,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                    lineHeight = 21.sp
                 )
             }
 
-            // Actions
+            // Primary & Secondary Actions
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(
+                KinetraButton(
+                    text = "Create an account",
                     onClick = onCreateAccountClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = IndicatorActive)
-                ) {
-                    Text(
-                        text = "Create an account",
-                        color = TextWhite,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onSignInClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(26.dp),
-                    border = BorderStroke(1.dp, ButtonBorder),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = ButtonBackground)
-                ) {
-                    Text(
-                        text = "Sign in",
-                        color = TextWhite,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Text(
-                    text = "OR",
-                    color = TextGray,
-                    fontSize = 12.sp,
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedButton(
-                    onClick = onGoogleSignInClick,
+                KinetraOutlinedButton(
+                    text = "Sign in",
+                    onClick = onSignInClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(26.dp),
-                    border = BorderStroke(1.dp, ButtonBorder),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = ButtonBackground)
+                        .padding(vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Continue with Google",
-                        color = TextWhite,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = CardBorder)
+                    Text(text = "OR", color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = CardBorder)
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                KinetraOutlinedButton(
+                    text = "Continue with Google",
+                    onClick = onGoogleSignInClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Already on the team? Sign in",
-                    color = GlowBlueBright,
+                    color = BrandAccentText,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .clickable { onSignInClick() }
                 )
 
                 Text(
-                    text = "Fictional demo. GPS and AI are simulated.",
+                    text = "Sign in with your KINETRA account to sync your personal workouts.",
                     color = TextGray,
                     fontSize = 11.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(top = 8.dp)
+                        .padding(top = 4.dp)
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Welcome - Light")
+@Composable
+private fun WelcomeScreenLightPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.LIGHT)) {
+        WelcomeScreen({}, {}, {}, {})
+    }
+}
+
+@Preview(showBackground = true, name = "Welcome - Dark")
+@Composable
+private fun WelcomeScreenDarkPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.DARK)) {
+        WelcomeScreen({}, {}, {}, {})
     }
 }

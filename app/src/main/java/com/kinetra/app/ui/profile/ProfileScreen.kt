@@ -1,5 +1,6 @@
 package com.kinetra.app.ui.profile
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -14,17 +15,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kinetra.app.ui.components.*
@@ -40,10 +43,8 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    val scrollState = rememberScrollState()
     val context = LocalContext.current
 
-    // Trigger profile refresh when screen appears
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
     }
@@ -63,6 +64,29 @@ fun ProfileScreen(
         } else null
     }
 
+    ProfileScreenContent(
+        state = state,
+        profileBitmap = profileBitmap,
+        onHistoryClick = onHistoryClick,
+        onSettingsClick = onSettingsClick,
+        onOrganizerClick = onOrganizerClick,
+        onNotificationsClick = onNotificationsClick,
+        onEditProfileClick = onEditProfileClick
+    )
+}
+
+@Composable
+internal fun ProfileScreenContent(
+    state: ProfileUiState,
+    profileBitmap: Bitmap?,
+    onHistoryClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onOrganizerClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onEditProfileClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,7 +97,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .verticalScroll(scrollState)
-                .padding(20.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header Bar
@@ -82,70 +106,72 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "KINETRA / ATHLETE",
-                        color = TextGray,
-                        fontSize = 11.sp,
+                        text = "KINETRA · ATHLETE",
+                        color = BrandAccentText,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp
+                        letterSpacing = 1.4.sp
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = state.name,
+                        text = state.name.ifBlank { "Athlete Profile" },
                         color = TextWhite,
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = (-0.3).sp
                     )
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // Edit Profile quick button
                     Box(
                         modifier = Modifier
-                            .clickable { onEditProfileClick() }
-                            .background(ButtonBackground, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(ButtonBackground)
                             .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                            .clickable { onEditProfileClick() }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit Profile",
-                                tint = ElectricCyan,
+                                tint = BrandAccentText,
                                 modifier = Modifier.size(14.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
                                 text = "Edit",
                                 color = TextWhite,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
 
-                    // Notifications button
                     Box(
                         modifier = Modifier
-                            .clickable { onNotificationsClick() }
-                            .background(ButtonBackground, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(ButtonBackground)
                             .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                            .clickable { onNotificationsClick() }
+                            .padding(horizontal = 10.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.Notifications,
                                 contentDescription = "Notifications",
-                                tint = if (state.unreadNotificationsCount > 0) ElectricCyan else TextGray,
-                                modifier = Modifier.size(14.dp)
+                                tint = if (state.unreadNotificationsCount > 0) BrandAccentText else TextGray,
+                                modifier = Modifier.size(15.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "${state.unreadNotificationsCount}",
-                                color = if (state.unreadNotificationsCount > 0) ElectricCyan else TextGray,
-                                fontSize = 11.sp,
+                                color = if (state.unreadNotificationsCount > 0) BrandAccentText else TextGray,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -153,11 +179,10 @@ fun ProfileScreen(
                 }
             }
 
-            // Athlete Identity Card with Circular Photo
+            // Athlete Identity Card
             KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = CardBackground,
-                borderColor = CardBorder
+                contentPadding = PaddingValues(18.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -167,8 +192,8 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
-                            .background(ButtonBackground)
-                            .border(2.dp, ElectricCyan, CircleShape),
+                            .background(AccentTintSurface)
+                            .border(2.dp, BrandPrimary, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         if (profileBitmap != null) {
@@ -188,9 +213,9 @@ fun ProfileScreen(
 
                             Text(
                                 text = initials,
-                                color = ElectricCyan,
+                                color = BrandAccentText,
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.ExtraBold
                             )
                         }
                     }
@@ -199,7 +224,7 @@ fun ProfileScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = state.name,
+                            text = state.name.ifBlank { "KINETRA Athlete" },
                             color = TextWhite,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -216,13 +241,16 @@ fun ProfileScreen(
                                 fontSize = 11.sp
                             )
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${state.location} · ${state.sports}",
-                            color = GlowBlueBright,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        val meta = listOf(state.location, state.sports).filter { it.isNotBlank() }.joinToString(" · ")
+                        if (meta.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = meta,
+                                color = BrandAccentText,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
 
@@ -232,13 +260,13 @@ fun ProfileScreen(
                         text = state.bio,
                         color = TextSecondary,
                         fontSize = 13.sp,
-                        lineHeight = 18.sp
+                        lineHeight = 19.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-                HorizontalDivider(color = ButtonBorder)
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = CardBorderSubtle)
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -246,15 +274,26 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = "NEXT GOAL", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "CURRENT GOAL",
+                            color = TextGray,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(text = state.nextGoal, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = state.nextGoal,
+                            color = TextWhite,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Text(
+                    KinetraBadge(
                         text = state.weeklyKm,
-                        color = ElectricCyan,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        textColor = OnAccent,
+                        backgroundColor = BrandPrimary,
+                        borderColor = BrandPrimary
                     )
                 }
             }
@@ -262,56 +301,155 @@ fun ProfileScreen(
             // Personal Records Card
             KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = CardBackground,
-                borderColor = CardBorder
+                contentPadding = PaddingValues(18.dp)
             ) {
-                Text(text = "PERSONAL RECORDS", color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                SectionHeader(title = "Personal Records")
                 Spacer(modifier = Modifier.height(12.dp))
-                state.personalRecords.forEach { (distance, time) ->
+                state.personalRecords.forEachIndexed { idx, (distance, time) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = distance, color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                        Text(text = time, color = TextGray, fontSize = 13.sp)
+                        Text(
+                            text = distance,
+                            color = TextWhite,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = time,
+                            color = if (time.contains("No record", ignoreCase = true)) TextGray else BrandAccentText,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    if (idx < state.personalRecords.lastIndex) {
+                        HorizontalDivider(color = CardBorderSubtle)
                     }
                 }
             }
 
             // Navigation Links
+            SectionHeader(title = "Account & Tools")
+
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                ProfileMenuButton(title = "Edit Athlete Profile", onClick = onEditProfileClick)
-                ProfileMenuButton(title = "Event History & Race Log", onClick = onHistoryClick)
-                ProfileMenuButton(title = "Settings & Preferences", onClick = onSettingsClick)
-                ProfileMenuButton(title = "Organizer Dashboard ›", onClick = onOrganizerClick)
+                ProfileMenuButton(title = "Edit Athlete Profile", icon = Icons.Filled.Person, onClick = onEditProfileClick)
+                ProfileMenuButton(title = "Event History & Race Log", icon = Icons.Filled.EmojiEvents, onClick = onHistoryClick)
+                ProfileMenuButton(title = "Settings & Appearance", icon = Icons.Filled.Settings, onClick = onSettingsClick)
+                ProfileMenuButton(title = "Organizer Dashboard", icon = Icons.Filled.Dashboard, onClick = onOrganizerClick)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-fun ProfileMenuButton(title: String, onClick: () -> Unit) {
+fun ProfileMenuButton(
+    title: String,
+    onClick: () -> Unit,
+    icon: ImageVector? = null
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-        border = BorderStroke(1.dp, ButtonBorder)
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = BorderStroke(1.dp, CardBorder)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
+                .padding(horizontal = 16.dp, vertical = 15.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = title, color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text(text = "›", color = GlowBlueBright, fontSize = 18.sp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (icon != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(AccentTintSurface),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = BrandAccentText,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                Text(
+                    text = title,
+                    color = TextWhite,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = BrandAccentText,
+                modifier = Modifier.size(20.dp)
+            )
         }
+    }
+}
+
+private val previewProfileState = ProfileUiState(
+    name = "Alex Morgan",
+    email = "alex.morgan@kinetra.app",
+    phone = "+44 7700 900123",
+    location = "London, UK",
+    sports = "Running · Cycling",
+    bio = "Training for sub-45 10K and spring half marathon.",
+    weeklyKm = "28.5 km",
+    nextGoal = "35 km Weekly Distance",
+    personalRecords = listOf(
+        "5K" to "18:42",
+        "10K" to "46:12",
+        "Half Marathon" to "1:38:04"
+    ),
+    unreadNotificationsCount = 2
+)
+
+@Preview(showBackground = true, name = "Profile Screen - Light")
+@Composable
+private fun ProfileScreenLightPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.LIGHT)) {
+        ProfileScreenContent(
+            state = previewProfileState,
+            profileBitmap = null,
+            onHistoryClick = {},
+            onSettingsClick = {},
+            onOrganizerClick = {},
+            onNotificationsClick = {},
+            onEditProfileClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Profile Screen - Dark")
+@Composable
+private fun ProfileScreenDarkPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.DARK)) {
+        ProfileScreenContent(
+            state = previewProfileState,
+            profileBitmap = null,
+            onHistoryClick = {},
+            onSettingsClick = {},
+            onOrganizerClick = {},
+            onNotificationsClick = {},
+            onEditProfileClick = {}
+        )
     }
 }

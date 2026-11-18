@@ -3,7 +3,6 @@ package com.kinetra.app.ui.profile
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,10 +21,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kinetra.app.data.NotificationItem
@@ -41,7 +39,6 @@ fun NotificationsScreen(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Request Android 13+ Notification Permission if needed
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { _ -> }
@@ -65,70 +62,26 @@ fun NotificationsScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .padding(horizontal = 20.dp, vertical = 14.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    KinetraIconButton(
-                        icon = Icons.Filled.ArrowBack,
-                        onClick = onBack,
-                        size = 40.dp
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
+            KinetraScreenHeader(
+                title = "Notifications",
+                subtitle = if (state.unreadCount > 0) "${state.unreadCount} UNREAD ALERTS" else "KINETRA · ALERTS",
+                onBack = onBack,
+                trailingContent = {
+                    if (state.unreadCount > 0) {
                         Text(
-                            text = "KINETRA / NOTIFICATIONS",
-                            color = TextDim,
-                            fontSize = 10.sp,
+                            text = "Mark all read",
+                            color = BrandAccentText,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp
+                            modifier = Modifier.clickable { viewModel.markAllAsRead() }
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Activity Alerts",
-                                color = TextWhite,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            if (state.unreadCount > 0) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(50.dp))
-                                        .background(IndicatorActive)
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "${state.unreadCount} NEW",
-                                        color = TextWhite,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
+            )
 
-                if (state.unreadCount > 0) {
-                    Text(
-                        text = "Mark all read",
-                        color = ElectricCyan,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { viewModel.markAllAsRead() }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Category Filter Chips
             Row(
@@ -147,22 +100,26 @@ fun NotificationsScreen(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
-                            .background(if (isSelected) IndicatorActive else ButtonBackground)
-                            .border(1.dp, if (isSelected) ElectricCyan else ButtonBorder, RoundedCornerShape(20.dp))
+                            .background(if (isSelected) BrandPrimary else CardBackground)
+                            .border(
+                                width = 1.dp,
+                                color = if (isSelected) BrandPrimary else CardBorder,
+                                shape = RoundedCornerShape(20.dp)
+                            )
                             .clickable { viewModel.selectCategory(category) }
                             .padding(horizontal = 14.dp, vertical = 8.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = category.displayName,
-                                color = if (isSelected) TextWhite else TextGray,
+                                color = if (isSelected) OnAccent else TextSecondary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
                                 text = "($count)",
-                                color = if (isSelected) ElectricCyanGlow else TextMuted,
+                                color = if (isSelected) OnAccent.copy(alpha = 0.8f) else TextMuted,
                                 fontSize = 11.sp
                             )
                         }
@@ -172,7 +129,6 @@ fun NotificationsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Notifications List / Empty State
             if (state.filteredList.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -187,38 +143,39 @@ fun NotificationsScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(72.dp)
+                                .size(68.dp)
                                 .clip(CircleShape)
-                                .background(ButtonBackground)
+                                .background(AccentTintSurface)
                                 .border(1.dp, CardBorder, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.NotificationsNone,
                                 contentDescription = null,
-                                tint = TextMuted,
-                                modifier = Modifier.size(36.dp)
+                                tint = BrandAccentText,
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "All Caught Up!",
+                            text = "All Caught Up",
                             color = TextWhite,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "You have no unread alerts in this category. New workout reminders and race updates will appear here.",
+                            text = "You have no alerts in this category. Workout reminders and race updates will appear here.",
                             color = TextGray,
                             fontSize = 13.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            lineHeight = 19.sp
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         KinetraOutlinedButton(
                             text = "Refresh",
                             onClick = { viewModel.loadNotifications() },
-                            height = 40.dp
+                            height = 42.dp
                         )
                     }
                 }
@@ -236,9 +193,7 @@ fun NotificationsScreen(
                             }
                         )
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
             }
         }
@@ -252,7 +207,7 @@ fun NotificationCard(
     onTestSystemNotification: () -> Unit
 ) {
     val (categoryColor, categoryIcon) = when (item.category.lowercase()) {
-        "reminder" -> ElectricCyan to Icons.Filled.Timer
+        "reminder" -> BrandAccentText to Icons.Filled.Timer
         "update" -> AthleticGreen to Icons.Filled.EmojiEvents
         else -> AthleticAmber to Icons.Filled.Shield
     }
@@ -260,14 +215,15 @@ fun NotificationCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                if (!item.is_read) onMarkAsRead()
-            },
+            .clickable { if (!item.is_read) onMarkAsRead() },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (!item.is_read) CardBackgroundElevated else CardBackground
         ),
-        border = BorderStroke(1.dp, if (!item.is_read) CardBorderBright else CardBorderSubtle)
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (!item.is_read) BrandPrimary.copy(alpha = 0.4f) else CardBorder
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -306,7 +262,7 @@ fun NotificationCard(
                         modifier = Modifier
                             .size(8.dp)
                             .clip(CircleShape)
-                            .background(ElectricCyan)
+                            .background(BrandPrimary)
                     )
                 }
             }
@@ -322,7 +278,7 @@ fun NotificationCard(
                 text = item.message,
                 color = TextSecondary,
                 fontSize = 13.sp,
-                lineHeight = 18.sp
+                lineHeight = 19.sp
             )
 
             Row(
@@ -330,21 +286,20 @@ fun NotificationCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Button to test native Android system alert
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { onTestSystemNotification() }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PhoneAndroid,
-                        contentDescription = "Test Notification",
-                        tint = TextDim,
+                        contentDescription = "Send to device",
+                        tint = TextGray,
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Send to device",
-                        color = TextDim,
+                        color = TextGray,
                         fontSize = 11.sp
                     )
                 }
@@ -352,7 +307,7 @@ fun NotificationCard(
                 if (!item.is_read) {
                     Text(
                         text = "Mark read",
-                        color = GlowBlueBright,
+                        color = BrandAccentText,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable { onMarkAsRead() }

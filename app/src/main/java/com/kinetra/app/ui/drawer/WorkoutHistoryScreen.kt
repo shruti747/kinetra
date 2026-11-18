@@ -1,15 +1,13 @@
 package com.kinetra.app.ui.drawer
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,11 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kinetra.app.tracking.model.ActivityType
 import com.kinetra.app.tracking.model.WorkoutSession
 import com.kinetra.app.tracking.repository.WorkoutRepository
+import com.kinetra.app.ui.components.KinetraCard
+import com.kinetra.app.ui.components.KinetraScreenHeader
 import com.kinetra.app.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,7 +35,7 @@ fun WorkoutHistoryScreen(
     onBack: () -> Unit
 ) {
     val workouts by WorkoutRepository.workouts.collectAsState()
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy • hh:mm a", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy · hh:mm a", Locale.getDefault())
 
     Box(
         modifier = Modifier
@@ -45,46 +46,58 @@ fun WorkoutHistoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .padding(20.dp),
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(ButtonBackground)
-                        .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                        .clickable { onBack() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = TextWhite,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Text(
-                    text = "WORKOUT HISTORY",
-                    color = TextWhite,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-            }
+            KinetraScreenHeader(
+                title = "Workout History",
+                subtitle = "KINETRA · LOGBOOK",
+                onBack = onBack
+            )
 
             if (workouts.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No workouts recorded yet. Start tracking to build your history!", color = TextGray)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(32.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(68.dp)
+                                .clip(CircleShape)
+                                .background(AccentTintSurface)
+                                .border(1.dp, CardBorder, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.History,
+                                contentDescription = null,
+                                tint = BrandAccentText,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Workouts Yet",
+                            color = TextWhite,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Start a live walk, run, cycle, or general workout to build your training log.",
+                            color = TextGray,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 19.sp
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
@@ -94,6 +107,7 @@ fun WorkoutHistoryScreen(
                     items(workouts) { session ->
                         WorkoutCard(session, dateFormat.format(Date(session.startTimeMillis)))
                     }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
         }
@@ -102,50 +116,69 @@ fun WorkoutHistoryScreen(
 
 @Composable
 private fun WorkoutCard(session: WorkoutSession, dateString: String) {
-    Card(
+    KinetraCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-        border = BorderStroke(1.dp, ButtonBorder)
+        contentPadding = PaddingValues(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val icon = when (session.activityType) {
-                        ActivityType.RUNNING -> Icons.Filled.DirectionsRun
-                        ActivityType.CYCLING -> Icons.Filled.DirectionsBike
-                        ActivityType.WALKING -> Icons.Filled.DirectionsWalk
-                        ActivityType.GENERAL_WORKOUT -> Icons.Filled.FitnessCenter
-                    }
-                    Icon(imageVector = icon, contentDescription = null, tint = ElectricCyan, modifier = Modifier.size(20.dp))
-                    Text(text = session.activityType.displayName, color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                val icon = when (session.activityType) {
+                    ActivityType.RUNNING -> Icons.Filled.DirectionsRun
+                    ActivityType.CYCLING -> Icons.Filled.DirectionsBike
+                    ActivityType.WALKING -> Icons.Filled.DirectionsWalk
+                    ActivityType.GENERAL_WORKOUT -> Icons.Filled.FitnessCenter
                 }
-
-                Text(text = dateString, color = TextMuted, fontSize = 11.sp)
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(AccentTintSurface),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = BrandAccentText,
+                        modifier = Modifier.size(19.dp)
+                    )
+                }
+                Column {
+                    Text(
+                        text = session.activityType.displayName,
+                        color = TextWhite,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = dateString,
+                        color = TextGray,
+                        fontSize = 11.sp
+                    )
+                }
             }
+        }
 
-            HorizontalDivider(color = CardBorderSubtle)
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(color = CardBorderSubtle)
+        Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                MetricColumn("DISTANCE", String.format("%.2f km", session.distanceMeters / 1000.0), ElectricCyan)
-                MetricColumn("DURATION", formatDuration(session.durationSeconds), TextWhite)
-                MetricColumn("PACE", session.averagePaceFormatted, TextWhite)
-                MetricColumn("CALORIES", "${session.caloriesBurned} kcal", AthleticAmber)
-                if (session.averageHeartRate != null) {
-                    MetricColumn("AVG HR", "${session.averageHeartRate} bpm", AthleticRed)
-                }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            MetricColumn("DISTANCE", String.format("%.2f km", session.distanceMeters / 1000.0), BrandAccentText)
+            MetricColumn("DURATION", formatDuration(session.durationSeconds), TextWhite)
+            MetricColumn("PACE", session.averagePaceFormatted, TextWhite)
+            MetricColumn("CALORIES", "${session.caloriesBurned} kcal", TextSecondary)
+            if (session.averageHeartRate != null) {
+                MetricColumn("AVG HR", "${session.averageHeartRate} bpm", BrandAccentText)
             }
         }
     }
@@ -154,7 +187,8 @@ private fun WorkoutCard(session: WorkoutSession, dateString: String) {
 @Composable
 private fun MetricColumn(label: String, value: String, color: Color) {
     Column {
-        Text(text = label, color = TextMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(text = label, color = TextGray, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
+        Spacer(modifier = Modifier.height(2.dp))
         Text(text = value, color = color, fontSize = 13.sp, fontWeight = FontWeight.Bold)
     }
 }
@@ -164,4 +198,3 @@ private fun formatDuration(seconds: Long): String {
     val s = seconds % 60
     return String.format("%d:%02d", m, s)
 }
-

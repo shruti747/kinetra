@@ -1,15 +1,11 @@
 package com.kinetra.app.ui.drawer
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,6 +15,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.KinetraBadge
+import com.kinetra.app.ui.components.KinetraCard
+import com.kinetra.app.ui.components.KinetraScreenHeader
+import com.kinetra.app.ui.components.SectionHeader
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -34,97 +34,105 @@ fun ChallengesScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .padding(20.dp)
-                .verticalScroll(scrollState),
+                .navigationBarsPadding()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(ButtonBackground)
-                        .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                        .clickable { onBack() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = TextWhite,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Text(
-                    text = "ATHLETIC CHALLENGES",
-                    color = TextWhite,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-            }
+            KinetraScreenHeader(
+                title = "Challenges",
+                subtitle = "KINETRA · COMMUNITY",
+                onBack = onBack
+            )
+
+            SectionHeader(title = "Featured Monthly Challenges")
 
             ChallengeCard(
                 title = "November 50K Milestone",
                 description = "Complete 50 kilometers of outdoor running throughout November.",
                 participants = "1,420 Athletes Joined",
-                reward = "+500 Kinetra XP"
+                reward = "+500 KINETRA XP"
             )
 
             ChallengeCard(
                 title = "Weekend 10K Streak",
                 description = "Log a continuous 10K run under 60 minutes this weekend.",
                 participants = "840 Athletes Joined",
-                reward = "+250 Kinetra XP & Gold Badge"
+                reward = "+250 XP · Gold Badge"
             )
 
             ChallengeCard(
                 title = "Climb & Elevation Master",
                 description = "Gain 500m of total elevation across trail runs or outdoor cycling.",
                 participants = "310 Athletes Joined",
-                reward = "+400 Kinetra XP"
+                reward = "+400 KINETRA XP"
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
 private fun ChallengeCard(title: String, description: String, participants: String, reward: String) {
-    Card(
+    KinetraCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-        border = BorderStroke(1.dp, ButtonBorder)
+        contentPadding = PaddingValues(18.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = title,
+                color = TextWhite,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(AccentTintSurface),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = title, color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Icon(imageVector = Icons.Filled.EmojiEvents, contentDescription = null, tint = AthleticAmber)
+                Icon(
+                    imageVector = Icons.Filled.EmojiEvents,
+                    contentDescription = null,
+                    tint = BrandAccentText,
+                    modifier = Modifier.size(18.dp)
+                )
             }
-            Text(text = description, color = TextGray, fontSize = 13.sp)
-            HorizontalDivider(color = CardBorderSubtle)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = participants, color = TextMuted, fontSize = 11.sp)
-                Text(text = reward, color = ElectricCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = description,
+            color = TextGray,
+            fontSize = 13.sp,
+            lineHeight = 19.sp
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+        HorizontalDivider(color = CardBorderSubtle)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = participants, color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+            KinetraBadge(
+                text = reward,
+                textColor = BrandAccentText,
+                backgroundColor = AccentTintSurface,
+                borderColor = BrandPrimary.copy(alpha = 0.25f)
+            )
         }
     }
 }
-

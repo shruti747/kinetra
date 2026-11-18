@@ -13,9 +13,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.kinetra.app.data.SessionManager
 import com.kinetra.app.tracking.repository.WorkoutRepository
 import com.kinetra.app.ui.main.MainContainer
 import com.kinetra.app.ui.splash.KinetraAnimatedSplashScreen
+import com.kinetra.app.ui.theme.AppearanceManager
 import com.kinetra.app.ui.theme.KinetraTheme
 import com.kinetra.app.wearable.WearableManager
 
@@ -27,20 +29,24 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        // Restore saved appearance preferences & device-local auth session before first composition
+        AppearanceManager.initialize(this)
+        SessionManager.initialize(this)
+
         // Initialize wearable sensor manager & local workout repository
         WearableManager.initialize(this)
         WorkoutRepository.initialize(this)
 
         setContent {
-            KinetraTheme {
+            var showAnimatedSplash by rememberSaveable { mutableStateOf(true) }
+
+            KinetraTheme(forceDarkSystemBars = showAnimatedSplash) {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    var showAnimatedSplash by rememberSaveable { mutableStateOf(true) }
-
                     Crossfade(
                         targetState = showAnimatedSplash,
-                        animationSpec = tween(durationMillis = 350),
+                        animationSpec = tween(durationMillis = 320),
                         label = "splash_to_home_crossfade"
                     ) { isSplash ->
                         if (isSplash) {
@@ -56,4 +62,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

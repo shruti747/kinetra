@@ -1,19 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
--->
+<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Exclude per-device auth tokens and session prefs from Google Cloud Backup -->
+        <exclude domain="sharedpref" path="kinetra_device_auth_session.xml" />
+        <exclude domain="sharedpref" path="kinetra_user_prefs.xml" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- Exclude per-device auth tokens from phone-to-phone cable/Wi-Fi migration -->
+        <exclude domain="sharedpref" path="kinetra_device_auth_session.xml" />
+        <exclude domain="sharedpref" path="kinetra_user_prefs.xml" />
     </device-transfer>
-    -->
 </data-extraction-rules>

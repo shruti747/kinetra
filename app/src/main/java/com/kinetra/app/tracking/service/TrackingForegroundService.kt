@@ -20,6 +20,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.kinetra.app.MainActivity
+import com.kinetra.app.R
 import com.kinetra.app.tracking.engine.TrackingEngine
 import com.kinetra.app.tracking.model.ActivityType
 import com.kinetra.app.tracking.model.GpsPoint
@@ -290,7 +291,8 @@ class TrackingForegroundService : Service(), LocationListener {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("KINETRA — ${activityType.displayName}")
             .setContentText(contentText)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_kinetra_notification)
+            .setColor(0xFF800020.toInt())
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

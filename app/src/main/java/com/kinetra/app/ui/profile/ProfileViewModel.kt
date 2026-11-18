@@ -12,22 +12,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ProfileUiState(
-    val id: Int = 2,
-    val name: String = "SHRUTI S",
-    val email: String = "252514022.sclas@saveetha.com",
-    val phone: String = "+91 98765 43210",
-    val bio: String = "Endurance runner & marathon athlete",
-    val location: String = "London, UK",
-    val sports: String = "Running · Cycling",
+    val id: Int = -1,
+    val name: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val bio: String = "",
+    val location: String = "",
+    val sports: String = "",
     val profilePhoto: String = "",
-    val weeklyKm: String = "24.8 km",
-    val nextGoal: String = "Break 46 minutes for 10K",
+    val weeklyKm: String = "0.0 km",
+    val nextGoal: String = "Set your weekly target",
     val personalRecords: List<Pair<String, String>> = listOf(
-        "5K" to "18:42 GPS estimate",
-        "10K" to "46:12 Official · PB",
-        "Half" to "1:38:04 Official · PB"
+        "5K" to "No record yet",
+        "10K" to "No record yet",
+        "Half" to "No record yet"
     ),
-    val unreadNotificationsCount: Int = 3,
+    val unreadNotificationsCount: Int = 0,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
@@ -39,28 +39,45 @@ class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    init {
-        loadProfile()
-    }
-
     fun loadProfile() {
+        if (!SessionManager.isAuthenticated()) {
+            clearUserData()
+            return
+        }
+
         val currentCached = UserSession.userProfile.value
-        _uiState.update {
-            it.copy(
-                id = currentCached.id,
-                name = currentCached.name,
-                email = currentCached.email,
-                phone = currentCached.phone.orEmpty(),
-                bio = currentCached.bio.orEmpty(),
-                location = currentCached.location ?: "London, UK",
-                sports = currentCached.preferred_sports ?: "Running · Cycling",
-                profilePhoto = currentCached.profile_photo.orEmpty()
-            )
+        if (currentCached.id > 0) {
+            _uiState.update {
+                it.copy(
+                    id = currentCached.id,
+                    name = currentCached.name,
+                    email = currentCached.email,
+                    phone = currentCached.phone.orEmpty(),
+                    bio = currentCached.bio.orEmpty(),
+                    location = currentCached.location.orEmpty(),
+                    sports = currentCached.preferred_sports.orEmpty(),
+                    profilePhoto = currentCached.profile_photo.orEmpty(),
+                    errorMessage = null
+                )
+            }
         }
 
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
             try {
-                val response = RetrofitClient.kinetraApi.getProfile(UserSession.currentUserId)
+                val userId = SessionManager.getCurrentUserId()
+                if (userId <= 0) {
+                    clearUserData()
+                    return@launch
+                }
+
+                val response = RetrofitClient.kinetraApi.getProfile(userId)
+                if (response.code() == 401 || response.code() == 403) {
+                    SessionManager.clearSession()
+                    clearUserData()
+                    return@launch
+                }
+
                 if (response.isSuccessful && response.body()?.success == true) {
                     val user = response.body()?.user
                     if (user != null) {
@@ -72,16 +89,20 @@ class ProfileViewModel : ViewModel() {
                                 email = user.email,
                                 phone = user.phone.orEmpty(),
                                 bio = user.bio.orEmpty(),
-                                location = user.location ?: "London, UK",
-                                sports = user.preferred_sports ?: "Running · Cycling",
+                                location = user.location.orEmpty(),
+                                sports = user.preferred_sports.orEmpty(),
                                 profilePhoto = user.profile_photo.orEmpty(),
+                                isLoading = false,
                                 errorMessage = null
                             )
                         }
+                        return@launch
                     }
                 }
+                _uiState.update { it.copy(isLoading = false) }
             } catch (_: Exception) {
-                // Kept local session cache safely
+                // Keep authenticated user's local device cache safely when offline
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -98,6 +119,12 @@ class ProfileViewModel : ViewModel() {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        val userId = SessionManager.getCurrentUserId()
+        if (userId <= 0 || !SessionManager.isAuthenticated()) {
+            onError("Your session has expired. Please sign in again.")
+            return
+        }
+
         val trimmedName = name.trim()
         val trimmedEmail = email.trim()
 
@@ -118,7 +145,6 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, errorMessage = null, successMessage = null) }
 
-            val userId = UserSession.currentUserId
             val request = ProfileUpdateRequest(
                 user_id = userId,
                 name = trimmedName,
@@ -132,16 +158,23 @@ class ProfileViewModel : ViewModel() {
 
             try {
                 val response = RetrofitClient.kinetraApi.updateProfile(request)
+                if (response.code() == 401 || response.code() == 403) {
+                    SessionManager.clearSession(context)
+                    clearUserData()
+                    onError("Session expired. Please sign in again.")
+                    return@launch
+                }
+
                 if (response.isSuccessful && response.body()?.success == true) {
                     val updatedUser = response.body()?.user ?: UserProfile(
                         id = userId,
                         name = trimmedName,
                         email = trimmedEmail,
-                        phone = phone,
-                        bio = bio,
-                        location = location,
-                        preferred_sports = sports,
-                        profile_photo = profilePhotoUri
+                        phone = phone.trim(),
+                        bio = bio.trim(),
+                        location = location.trim(),
+                        preferred_sports = sports.trim(),
+                        profile_photo = profilePhotoUri.trim()
                     )
 
                     UserSession.updateProfile(context, updatedUser)
@@ -153,8 +186,8 @@ class ProfileViewModel : ViewModel() {
                             email = updatedUser.email,
                             phone = updatedUser.phone.orEmpty(),
                             bio = updatedUser.bio.orEmpty(),
-                            location = updatedUser.location ?: "London, UK",
-                            sports = updatedUser.preferred_sports ?: "Running · Cycling",
+                            location = updatedUser.location.orEmpty(),
+                            sports = updatedUser.preferred_sports.orEmpty(),
                             profilePhoto = updatedUser.profile_photo.orEmpty(),
                             isSaving = false,
                             errorMessage = null,
@@ -164,12 +197,11 @@ class ProfileViewModel : ViewModel() {
                     onSuccess()
                 } else {
                     val errorMsg = response.body()?.message ?: "Failed to update profile on server."
-                    // Fallback to local session update if server unreachable
-                    fallbackLocalSave(request, context, errorMsg)
+                    _uiState.update { it.copy(isSaving = false, errorMessage = errorMsg) }
                     onError(errorMsg)
                 }
-            } catch (e: Exception) {
-                // If offline or network issue, save locally so athlete changes are never lost
+            } catch (_: Exception) {
+                // Save locally for this authenticated user if device is temporarily offline
                 fallbackLocalSave(request, context, "Saved locally (Network unavailable).")
                 onSuccess()
             }
@@ -196,13 +228,17 @@ class ProfileViewModel : ViewModel() {
                 email = localProfile.email,
                 phone = localProfile.phone.orEmpty(),
                 bio = localProfile.bio.orEmpty(),
-                location = localProfile.location ?: "London, UK",
-                sports = localProfile.preferred_sports ?: "Running · Cycling",
+                location = localProfile.location.orEmpty(),
+                sports = localProfile.preferred_sports.orEmpty(),
                 profilePhoto = localProfile.profile_photo.orEmpty(),
                 isSaving = false,
                 successMessage = message
             )
         }
+    }
+
+    fun clearUserData() {
+        _uiState.value = ProfileUiState()
     }
 
     fun clearMessages() {

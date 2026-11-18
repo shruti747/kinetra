@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#050811</color>
+    <color name="splash_background">#0A0A0A</color>
+    <color name="kinetra_black">#0A0A0A</color>
+    <color name="kinetra_maroon">#800020</color>
+    <color name="kinetra_off_white">#F7F6F4</color>
+    <color name="kinetra_charcoal">#171717</color>
 </resources>

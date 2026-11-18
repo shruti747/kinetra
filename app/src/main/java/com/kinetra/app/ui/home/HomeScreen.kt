@@ -1,6 +1,5 @@
 package com.kinetra.app.ui.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,17 +9,24 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.*
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -34,7 +40,33 @@ fun HomeScreen(
     onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+    HomeScreenContent(
+        state = state,
+        unreadNotificationsCount = unreadNotificationsCount,
+        onStartRunClick = onStartRunClick,
+        onRaceDetailsClick = onRaceDetailsClick,
+        onAiIntelligenceClick = onAiIntelligenceClick,
+        onNotificationsClick = onNotificationsClick,
+        onMenuClick = onMenuClick
+    )
+}
+
+@Composable
+internal fun HomeScreenContent(
+    state: HomeUiState,
+    unreadNotificationsCount: Int,
+    onStartRunClick: () -> Unit,
+    onRaceDetailsClick: () -> Unit,
+    onAiIntelligenceClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onMenuClick: () -> Unit
+) {
     val scrollState = rememberScrollState()
+
+    val weeklyKmNumeric = remember(state.weeklyMileage) {
+        state.weeklyMileage.replace("km", "", ignoreCase = true).trim().toFloatOrNull() ?: 0f
+    }
+    val weeklyProgress = (weeklyKmNumeric / 35f).coerceIn(0f, 1f)
 
     Box(
         modifier = Modifier
@@ -46,10 +78,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .verticalScroll(scrollState)
-                .padding(20.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
+            // Top Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -57,38 +89,31 @@ fun HomeScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(ButtonBackground)
-                            .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
-                            .clickable { onMenuClick() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Menu",
-                            tint = TextWhite,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    KinetraIconButton(
+                        icon = Icons.Filled.Menu,
+                        onClick = onMenuClick,
+                        contentDescription = "Open Menu",
+                        size = 40.dp
+                    )
 
                     Column {
                         Text(
                             text = "Morning, ${state.athleteName}.",
                             color = TextWhite,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = (-0.2).sp
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "${state.dateString}  /  ${state.locationString}",
+                            text = "${state.dateString} · ${state.locationString}",
                             color = TextGray,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
                         )
                     }
                 }
@@ -97,10 +122,9 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Notification Bell with unread badge
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(40.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(ButtonBackground)
                             .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
@@ -110,51 +134,100 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Filled.Notifications,
                             contentDescription = "Notifications",
-                            tint = if (unreadNotificationsCount > 0) ElectricCyan else TextGray,
+                            tint = if (unreadNotificationsCount > 0) BrandAccentText else TextGray,
                             modifier = Modifier.size(20.dp)
                         )
                         if (unreadNotificationsCount > 0) {
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
-                                    .padding(5.dp)
+                                    .padding(6.dp)
                                     .size(8.dp)
                                     .clip(CircleShape)
-                                    .background(AthleticRed)
+                                    .background(BrandPrimary)
                             )
                         }
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(ButtonBackground)
-                            .border(1.dp, ButtonBorder, RoundedCornerShape(50.dp))
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = "DEMO",
-                            color = GlowBlueBright,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    KinetraAppBadge(size = 40.dp, cornerRadius = 12.dp)
                 }
             }
 
-            // Next Race Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onRaceDetailsClick() },
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                border = BorderStroke(1.dp, ButtonBorder)
+            // Primary Start Workout Action Card / Hero CTA
+            KinetraButton(
+                text = "Start live workout",
+                onClick = onStartRunClick,
+                leadingIcon = Icons.Filled.PlayArrow,
+                modifier = Modifier.fillMaxWidth(),
+                height = 54.dp
+            )
+
+            // Featured Next Race Card
+            KinetraClickableCard(
+                onClick = onRaceDetailsClick,
+                modifier = Modifier.fillMaxWidth(),
+                borderColor = CardBorder,
+                contentPadding = PaddingValues(20.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    KinetraBadge(
+                        text = "YOUR NEXT RACE",
+                        textColor = BrandAccentText,
+                        backgroundColor = AccentTintSurface,
+                        borderColor = BrandPrimary.copy(alpha = 0.2f)
+                    )
+                    Text(
+                        text = state.nextRaceFee,
+                        color = TextWhite,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = state.nextRaceName,
+                    color = TextWhite,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.3).sp
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${state.nextRaceLocation} · ${state.nextRaceDate}",
+                        color = TextGray,
+                        fontSize = 12.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "View Race Details",
+                        tint = BrandAccentText,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            // Metrics Row: Weekly Mileage & 10K Personal Best
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                KinetraCard(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -162,167 +235,235 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "YOUR NEXT RACE",
-                            color = GlowBlueBright,
-                            fontSize = 11.sp,
+                            text = "WEEKLY GOAL",
+                            color = TextGray,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 0.8.sp
                         )
-                        Text(
-                            text = state.nextRaceFee,
-                            color = TextWhite,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            imageVector = Icons.Filled.DirectionsRun,
+                            contentDescription = null,
+                            tint = BrandAccentText,
+                            modifier = Modifier.size(15.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = state.nextRaceName,
+                        text = state.weeklyMileage,
                         color = TextWhite,
-                        fontSize = 22.sp,
+                        fontSize = 21.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProgressTrack(
+                        progress = weeklyProgress,
+                        height = 5.dp
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "${state.nextRaceLocation} · ${state.nextRaceDate}",
+                        text = "of 35 km target",
                         color = TextGray,
-                        fontSize = 13.sp
+                        fontSize = 11.sp
                     )
                 }
-            }
 
-            // Metrics row: Weekly mileage & 10K PB
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Card(
+                KinetraCard(
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                    border = BorderStroke(1.dp, ButtonBorder)
+                    contentPadding = PaddingValues(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "WEEKLY MILEAGE", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(text = state.weeklyMileage, color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "of 35 km goal", color = GlowBlueBright, fontSize = 11.sp)
+                        Text(
+                            text = "10K BEST",
+                            color = TextGray,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.EmojiEvents,
+                            contentDescription = null,
+                            tint = BrandAccentText,
+                            modifier = Modifier.size(15.dp)
+                        )
                     }
-                }
-
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                    border = BorderStroke(1.dp, ButtonBorder)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(text = "10K PERSONAL BEST", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(text = state.personalBest, color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "Avg pace ${state.pbAvgPace}", color = GlowBlueBright, fontSize = 11.sp)
-                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = state.personalBest,
+                        color = TextWhite,
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Spacer(modifier = Modifier.height(19.dp))
+                    Text(
+                        text = "Pace ${state.pbAvgPace}",
+                        color = BrandAccentText,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
             // Last Activity Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                border = BorderStroke(1.dp, ButtonBorder)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "LAST ACTIVITY  /  ${state.lastActivityDate}", color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "Official · demo", color = GlowBlueBright, fontSize = 11.sp)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(text = state.lastActivityTitle, color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = "GPS estimate · official pending", color = TextGray, fontSize = 12.sp)
-                        }
-                        Text(text = state.lastActivityTime, color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
-                    }
-                }
-            }
+            SectionHeader(title = "Recent Activity")
 
-            // AI Recommendation Banner
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAiIntelligenceClick() },
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0A1128)),
-                border = BorderStroke(1.dp, GlowBlue)
+            KinetraCard(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(18.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "AI · DEMO", color = GlowBlueBright, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "View analysis ›", color = GlowBlueBright, fontSize = 12.sp)
-                    }
-                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = state.aiRecommendation,
-                        color = TextWhite,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
+                        text = "LAST SESSION · ${state.lastActivityDate}",
+                        color = TextGray,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.Speed,
+                        contentDescription = null,
+                        tint = BrandAccentText,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = state.lastActivityTitle,
+                            color = TextWhite,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = "GPS telemetry · synced to profile",
+                            color = TextGray,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = state.lastActivityTime,
+                        color = BrandAccentText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
 
-            // Start a run button
-            Button(
-                onClick = onStartRunClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(27.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = IndicatorActive)
+            // AI Performance Insight Banner
+            KinetraClickableCard(
+                onClick = onAiIntelligenceClick,
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = AccentTintSurface,
+                borderColor = BrandPrimary.copy(alpha = 0.25f),
+                contentPadding = PaddingValues(18.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AutoAwesome,
+                            contentDescription = null,
+                            tint = BrandAccentText,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Text(
+                            text = "PERFORMANCE INSIGHT",
+                            color = BrandAccentText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                    Text(
+                        text = "View analysis ›",
+                        color = BrandAccentText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Start a run",
+                    text = state.aiRecommendation,
                     color = TextWhite,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 20.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
+    }
+}
+
+private val sampleHomePreviewState = HomeUiState(
+    athleteName = "Alex",
+    dateString = "WED 18 NOV 2026",
+    locationString = "LONDON, UK",
+    nextRaceName = "RIVERSIDE 10K",
+    nextRaceDate = "22 NOV 2026 · 09:00",
+    nextRaceLocation = "Victoria Park, London",
+    nextRaceFee = "£35",
+    weeklyMileage = "28.5 km",
+    personalBest = "46:12",
+    pbAvgPace = "4:37 /km",
+    lastActivityTitle = "Morning Tempo Run",
+    lastActivityTime = "47:36",
+    lastActivityDate = "YESTERDAY",
+    aiRecommendation = "Your pacing stayed steady across splits 6–9 km. Add an easy 5 km recovery jog before race day."
+)
+
+@Preview(showBackground = true, name = "Home Dashboard - Light")
+@Composable
+private fun HomeScreenLightPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.LIGHT)) {
+        HomeScreenContent(
+            state = sampleHomePreviewState,
+            unreadNotificationsCount = 2,
+            onStartRunClick = {},
+            onRaceDetailsClick = {},
+            onAiIntelligenceClick = {},
+            onNotificationsClick = {},
+            onMenuClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Home Dashboard - Dark")
+@Composable
+private fun HomeScreenDarkPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.DARK)) {
+        HomeScreenContent(
+            state = sampleHomePreviewState,
+            unreadNotificationsCount = 2,
+            onStartRunClick = {},
+            onRaceDetailsClick = {},
+            onAiIntelligenceClick = {},
+            onNotificationsClick = {},
+            onMenuClick = {}
+        )
     }
 }

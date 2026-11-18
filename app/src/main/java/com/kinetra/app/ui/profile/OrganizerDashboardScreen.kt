@@ -1,11 +1,8 @@
 package com.kinetra.app.ui.profile
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,6 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.KinetraCard
+import com.kinetra.app.ui.components.KinetraScreenHeader
+import com.kinetra.app.ui.components.ProgressTrack
+import com.kinetra.app.ui.components.SectionHeader
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -29,47 +30,43 @@ fun OrganizerDashboardScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
-                .padding(20.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(text = "VICTORIA PARK ATHLETICS / DEMO", color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-                    Text(text = "Organizer Dashboard", color = TextWhite, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                }
-                Text(text = "Back", color = GlowBlueBright, fontSize = 14.sp, modifier = Modifier.clickable { onBack() })
-            }
+            KinetraScreenHeader(
+                title = "Organizer Dashboard",
+                subtitle = "VICTORIA PARK ATHLETICS",
+                onBack = onBack
+            )
 
-            Card(
+            KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                border = BorderStroke(1.dp, GlowBlueBright)
+                borderColor = BrandPrimary.copy(alpha = 0.4f),
+                contentPadding = PaddingValues(18.dp)
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Text(text = "Riverside 10K", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(text = "22 Nov 2026 · 09:00 · Victoria Park, London", color = TextGray, fontSize = 13.sp)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column {
-                            Text(text = "REGISTRATIONS", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "347 / 500 (69%)", color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Column {
-                            Text(text = "ENTRY VALUE", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "£12,145", color = GlowBlueBright, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        }
+                Text(text = "Riverside 10K", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(text = "22 Nov 2026 · 09:00 · Victoria Park, London", color = TextGray, fontSize = 13.sp)
+                Spacer(modifier = Modifier.height(14.dp))
+                ProgressTrack(progress = 0.69f, height = 6.dp)
+                Spacer(modifier = Modifier.height(14.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text(text = "REGISTRATIONS", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(text = "347 / 500 (69%)", color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(text = "ENTRY VALUE", color = TextGray, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(text = "£12,145", color = BrandAccentText, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 }
             }
 
-            Text(text = "PARTICIPANTS (3 OF 347)", color = TextGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            SectionHeader(title = "Participants (3 of 347)")
 
             val participants = listOf(
                 Triple("Alex Morgan", "KTR-1024 · Paid", "Bib 142 assigned"),
@@ -78,28 +75,26 @@ fun OrganizerDashboardScreen(onBack: () -> Unit) {
             )
 
             participants.forEach { (name, ref, bib) ->
-                Card(
+                KinetraCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                    border = BorderStroke(1.dp, ButtonBorder)
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
                             Text(text = name, color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = ref, color = GlowBlueBright, fontSize = 12.sp)
+                            Text(text = ref, color = BrandAccentText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                         Text(text = bib, color = TextGray, fontSize = 12.sp)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

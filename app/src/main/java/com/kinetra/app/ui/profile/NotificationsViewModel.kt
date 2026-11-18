@@ -37,17 +37,28 @@ class NotificationsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(NotificationsUiState())
     val uiState: StateFlow<NotificationsUiState> = _uiState.asStateFlow()
 
-    init {
-        loadNotifications()
-    }
-
     fun loadNotifications() {
+        if (!SessionManager.isAuthenticated()) {
+            clearUserData()
+            return
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val userId = UserSession.currentUserId
+            val userId = SessionManager.getCurrentUserId()
+            if (userId <= 0) {
+                clearUserData()
+                return@launch
+            }
 
             try {
                 val response = RetrofitClient.kinetraApi.getNotifications(userId)
+                if (response.code() == 401 || response.code() == 403) {
+                    SessionManager.clearSession()
+                    clearUserData()
+                    return@launch
+                }
+
                 if (response.isSuccessful && response.body()?.success == true) {
                     val list = response.body()?.notifications ?: emptyList()
                     val unread = response.body()?.unread_count ?: list.count { !it.is_read }
@@ -55,61 +66,33 @@ class NotificationsViewModel : ViewModel() {
                         it.copy(
                             notifications = list,
                             unreadCount = unread,
-                            isLoading = false
+                            isLoading = false,
+                            errorMessage = null
                         )
                     }
                 } else {
-                    // Seed fallback if response was empty or error
-                    fallbackToLocalNotifications()
+                    _uiState.update {
+                        it.copy(
+                            notifications = emptyList(),
+                            unreadCount = 0,
+                            isLoading = false
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                fallbackToLocalNotifications()
+            } catch (_: Exception) {
+                // Never inject another user's sample notifications when offline
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Unable to refresh notifications right now."
+                    )
+                }
             }
         }
     }
 
-    private fun fallbackToLocalNotifications() {
-        val sampleList = listOf(
-            NotificationItem(
-                id = 1,
-                title = "Morning 5K Training Reminder",
-                message = "Keep your race-week pace steady. Victoria Park 10K is in 6 days.",
-                category = "reminder",
-                is_read = false,
-                created_at = "Today, 08:30"
-            ),
-            NotificationItem(
-                id = 2,
-                title = "New Personal Record Unlocked!",
-                message = "Congratulations! You set a new 10K PB: 46:12 in your last timed trial.",
-                category = "update",
-                is_read = false,
-                created_at = "Yesterday, 17:45"
-            ),
-            NotificationItem(
-                id = 3,
-                title = "Account Security Alert",
-                message = "Your Kinetra athlete profile was successfully verified on your OPPO CPH2603.",
-                category = "alert",
-                is_read = false,
-                created_at = "2 days ago"
-            ),
-            NotificationItem(
-                id = 4,
-                title = "Weekly Mileage Goal Progress",
-                message = "You have completed 24.8 km of your 35 km weekly goal. Just 10.2 km left to hit your target!",
-                category = "reminder",
-                is_read = true,
-                created_at = "3 days ago"
-            )
-        )
-        _uiState.update {
-            it.copy(
-                notifications = sampleList,
-                unreadCount = sampleList.count { item -> !item.is_read },
-                isLoading = false
-            )
-        }
+    fun clearUserData() {
+        _uiState.value = NotificationsUiState()
     }
 
     fun selectCategory(category: NotificationCategory) {
@@ -117,8 +100,10 @@ class NotificationsViewModel : ViewModel() {
     }
 
     fun markAsRead(notificationId: Int) {
+        if (!SessionManager.isAuthenticated()) return
         viewModelScope.launch {
-            val userId = UserSession.currentUserId
+            val userId = SessionManager.getCurrentUserId()
+            if (userId <= 0) return@launch
 
             // Optimistic UI update
             _uiState.update { current ->
@@ -132,20 +117,25 @@ class NotificationsViewModel : ViewModel() {
             }
 
             try {
-                RetrofitClient.kinetraApi.markNotificationRead(
+                val response = RetrofitClient.kinetraApi.markNotificationRead(
                     MarkReadRequest(user_id = userId, notification_id = notificationId)
                 )
+                if (response.code() == 401 || response.code() == 403) {
+                    SessionManager.clearSession()
+                    clearUserData()
+                }
             } catch (_: Exception) {
-                // Keep optimistic state
+                // Keep optimistic state when offline
             }
         }
     }
 
     fun markAllAsRead() {
+        if (!SessionManager.isAuthenticated()) return
         viewModelScope.launch {
-            val userId = UserSession.currentUserId
+            val userId = SessionManager.getCurrentUserId()
+            if (userId <= 0) return@launch
 
-            // Optimistic update
             _uiState.update { current ->
                 val updated = current.notifications.map { it.copy(is_read = true) }
                 current.copy(
@@ -155,11 +145,15 @@ class NotificationsViewModel : ViewModel() {
             }
 
             try {
-                RetrofitClient.kinetraApi.markNotificationRead(
+                val response = RetrofitClient.kinetraApi.markNotificationRead(
                     MarkReadRequest(user_id = userId, mark_all = true)
                 )
+                if (response.code() == 401 || response.code() == 403) {
+                    SessionManager.clearSession()
+                    clearUserData()
+                }
             } catch (_: Exception) {
-                // Keep optimistic state
+                // Keep optimistic state when offline
             }
         }
     }
@@ -173,4 +167,3 @@ class NotificationsViewModel : ViewModel() {
         )
     }
 }
-

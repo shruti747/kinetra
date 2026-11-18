@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -30,35 +31,179 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.R
 import com.kinetra.app.ui.theme.*
+
+// ==========================================
+// 0. SPACING & OFFICIAL KINETRA BRAND MARKS
+// ==========================================
+
+object KinetraSpacing {
+    val xs = 6.dp
+    val sm = 10.dp
+    val md = 16.dp
+    val lg = 20.dp
+    val xl = 28.dp
+}
+
+/**
+ * Official KINETRA geometric K emblem vector.
+ */
+@Composable
+fun KinetraLogoMark(
+    modifier: Modifier = Modifier,
+    size: Dp = 40.dp,
+    tint: Color = KinetraMaroon
+) {
+    Icon(
+        painter = painterResource(id = R.drawable.ic_kinetra_logo_mark),
+        contentDescription = "KINETRA Emblem",
+        tint = tint,
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Matte black rounded square tile with the centered deep maroon K emblem.
+ * Ideal for Auth screens, Navigation Drawer, and compact brand headers.
+ */
+@Composable
+fun KinetraAppBadge(
+    modifier: Modifier = Modifier,
+    size: Dp = 44.dp,
+    cornerRadius: Dp = 12.dp
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(KinetraBlack)
+            .border(
+                width = 1.dp,
+                color = if (KinetraTheme.colors.isDark) CardBorder else KinetraBlack,
+                shape = RoundedCornerShape(cornerRadius)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        KinetraLogoMark(
+            size = size * 0.62f,
+            tint = KinetraMaroon
+        )
+    }
+}
+
+/**
+ * Horizontal KINETRA brand lockup: matte black K badge + crisp uppercase KINETRA wordmark.
+ */
+@Composable
+fun KinetraBrandLockup(
+    modifier: Modifier = Modifier,
+    badgeSize: Dp = 32.dp,
+    wordmarkSizeSp: Float = 16f,
+    onDarkSurface: Boolean = false
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        KinetraAppBadge(
+            size = badgeSize,
+            cornerRadius = badgeSize * 0.26f
+        )
+        Text(
+            text = "KINETRA",
+            color = if (onDarkSurface) KinetraWhite else TextWhite,
+            fontSize = wordmarkSizeSp.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 3.sp
+        )
+    }
+}
+
+/**
+ * Consistent minimal screen header with back button, eyebrow subtitle, and screen title.
+ */
+@Composable
+fun KinetraScreenHeader(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    trailingContent: @Composable (() -> Unit)? = null
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            KinetraIconButton(
+                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                onClick = onBack,
+                contentDescription = "Back",
+                size = 40.dp
+            )
+            Column {
+                if (!subtitle.isNullOrBlank()) {
+                    Text(
+                        text = subtitle.uppercase(),
+                        color = BrandAccentText,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.4.sp
+                    )
+                }
+                Text(
+                    text = title,
+                    color = TextWhite,
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.2).sp
+                )
+            }
+        }
+
+        if (trailingContent != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            trailingContent()
+        }
+    }
+}
 
 // ==========================================
 // 1. ATHLETIC CARDS
 // ==========================================
 
 /**
- * Standard Kinetra athletic card with premium dark container and subtle border.
+ * Standard KINETRA card with clean white/charcoal container and subtle #E7E1E2 border.
  */
 @Composable
 fun KinetraCard(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(KinetraTheme.cardRadius),
     backgroundColor: Color = CardBackground,
     borderColor: Color = CardBorder,
-    borderWidth: Dp = 1.dp,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    borderWidth: Dp = KinetraTheme.borderWidth,
+    contentPadding: PaddingValues = PaddingValues(18.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
         modifier = modifier,
         shape = shape,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = KinetraTheme.cardElevation),
         border = BorderStroke(borderWidth, borderColor)
     ) {
         Column(
@@ -69,17 +214,17 @@ fun KinetraCard(
 }
 
 /**
- * Clickable Kinetra athletic card with subtle press animation and customizable glow border.
+ * Clickable KINETRA card with subtle press scale animation.
  */
 @Composable
 fun KinetraClickableCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(KinetraTheme.cardRadius),
     backgroundColor: Color = CardBackground,
     borderColor: Color = CardBorder,
-    borderWidth: Dp = 1.dp,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    borderWidth: Dp = KinetraTheme.borderWidth,
+    contentPadding: PaddingValues = PaddingValues(18.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -100,6 +245,7 @@ fun KinetraClickableCard(
             ),
         shape = shape,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = KinetraTheme.cardElevation),
         border = BorderStroke(borderWidth, borderColor)
     ) {
         Column(
@@ -114,7 +260,7 @@ fun KinetraClickableCard(
 // ==========================================
 
 /**
- * Primary action capsule button with athletic press feedback and loading indicator.
+ * Primary action capsule button in Deep Maroon (#800020) with crisp white label.
  */
 @Composable
 fun KinetraButton(
@@ -124,16 +270,16 @@ fun KinetraButton(
     enabled: Boolean = true,
     isLoading: Boolean = false,
     containerColor: Color = IndicatorActive,
-    contentColor: Color = TextWhite,
+    contentColor: Color = OnAccent,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    shape: Shape = RoundedCornerShape(26.dp),
+    shape: Shape = RoundedCornerShape(KinetraTheme.buttonRadius),
     height: Dp = 52.dp
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled && !isLoading) 0.97f else 1.0f,
+        targetValue = if (isPressed && enabled && !isLoading) 0.98f else 1.0f,
         animationSpec = tween(durationMillis = 100),
         label = "btn_press_scale"
     )
@@ -148,13 +294,15 @@ fun KinetraButton(
         interactionSource = interactionSource,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            disabledContainerColor = containerColor.copy(alpha = 0.5f)
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.45f),
+            disabledContentColor = contentColor.copy(alpha = 0.7f)
         ),
         contentPadding = PaddingValues(horizontal = 24.dp)
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(20.dp),
                 color = contentColor,
                 strokeWidth = 2.dp
             )
@@ -177,7 +325,7 @@ fun KinetraButton(
                     color = contentColor,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.3.sp
                 )
                 if (trailingIcon != null) {
                     Spacer(modifier = Modifier.width(8.dp))
@@ -194,7 +342,7 @@ fun KinetraButton(
 }
 
 /**
- * Secondary outlined capsule button with dark navy background and subtle border.
+ * Secondary outlined capsule button with clean surface fill and subtle border.
  */
 @Composable
 fun KinetraOutlinedButton(
@@ -206,13 +354,13 @@ fun KinetraOutlinedButton(
     containerColor: Color = ButtonBackground,
     contentColor: Color = TextWhite,
     leadingIcon: ImageVector? = null,
-    shape: Shape = RoundedCornerShape(26.dp),
+    shape: Shape = RoundedCornerShape(KinetraTheme.buttonRadius),
     height: Dp = 52.dp
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled) 0.97f else 1.0f,
+        targetValue = if (isPressed && enabled) 0.98f else 1.0f,
         animationSpec = tween(durationMillis = 100),
         label = "outlined_btn_scale"
     )
@@ -227,9 +375,10 @@ fun KinetraOutlinedButton(
         interactionSource = interactionSource,
         border = BorderStroke(1.dp, borderColor),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = containerColor
+            containerColor = containerColor,
+            contentColor = contentColor
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -248,15 +397,15 @@ fun KinetraOutlinedButton(
                 text = text,
                 color = contentColor,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.2.sp
             )
         }
     }
 }
 
 /**
- * Compact circular or squircle icon button with subtle border and athletic feedback.
+ * Compact squircle icon button with subtle border.
  */
 @Composable
 fun KinetraIconButton(
@@ -266,7 +415,7 @@ fun KinetraIconButton(
     contentDescription: String? = null,
     tint: Color = TextWhite,
     containerColor: Color = ButtonBackground,
-    borderColor: Color = CardBorderSubtle,
+    borderColor: Color = ButtonBorder,
     size: Dp = 42.dp,
     shape: Shape = RoundedCornerShape(12.dp)
 ) {
@@ -283,7 +432,7 @@ fun KinetraIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = tint,
-            modifier = Modifier.size(size * 0.5f)
+            modifier = Modifier.size(size * 0.48f)
         )
     }
 }
@@ -293,7 +442,7 @@ fun KinetraIconButton(
 // ==========================================
 
 /**
- * Modern dark text field with leading icon, optional password toggle, and error states.
+ * Minimal KINETRA input field with leading icon, password visibility toggle, and error display.
  */
 @Composable
 fun KinetraTextField(
@@ -315,7 +464,7 @@ fun KinetraTextField(
     Column(modifier = modifier) {
         Text(
             text = label,
-            color = TextDim,
+            color = TextSecondary,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -338,8 +487,8 @@ fun KinetraTextField(
                     Icon(
                         imageVector = leadingIcon,
                         contentDescription = null,
-                        tint = if (errorMessage != null) AthleticRed else GlowBlueBright,
-                        modifier = Modifier.size(20.dp)
+                        tint = if (errorMessage != null) AthleticRed else BrandAccentText,
+                        modifier = Modifier.size(19.dp)
                     )
                 }
             } else null,
@@ -349,7 +498,7 @@ fun KinetraTextField(
                         Icon(
                             imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                            tint = if (passwordVisible) ElectricCyan else TextGray
+                            tint = if (passwordVisible) BrandAccentText else TextGray
                         )
                     }
                 }
@@ -359,13 +508,13 @@ fun KinetraTextField(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (errorMessage != null) AthleticRed else ElectricCyan,
+                focusedBorderColor = if (errorMessage != null) AthleticRed else BrandAccentText,
                 unfocusedBorderColor = if (errorMessage != null) AthleticRed else ButtonBorder,
                 focusedTextColor = TextWhite,
                 unfocusedTextColor = TextWhite,
                 focusedContainerColor = ButtonBackground,
                 unfocusedContainerColor = ButtonBackground,
-                cursorColor = ElectricCyan
+                cursorColor = BrandAccentText
             )
         )
 
@@ -389,7 +538,7 @@ fun KinetraTextField(
 // ==========================================
 
 /**
- * High-impact metric card displaying athletic values (Pace, Distance, Time, Heart Rate).
+ * High-contrast metric card displaying athletic values (Pace, Distance, Time, Heart Rate).
  */
 @Composable
 fun MetricCard(
@@ -398,14 +547,14 @@ fun MetricCard(
     modifier: Modifier = Modifier,
     unit: String = "",
     icon: ImageVector? = null,
-    accentColor: Color = GlowBlueBright,
+    accentColor: Color = BrandAccentText,
     subtext: String? = null
 ) {
     KinetraCard(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
         backgroundColor = CardBackground,
-        borderColor = CardBorder
+        borderColor = CardBorder,
+        contentPadding = PaddingValues(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -414,8 +563,8 @@ fun MetricCard(
         ) {
             Text(
                 text = label.uppercase(),
-                color = TextDim,
-                fontSize = 11.sp,
+                color = TextGray,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp
             )
@@ -436,7 +585,7 @@ fun MetricCard(
             Text(
                 text = value,
                 color = TextWhite,
-                fontSize = 24.sp,
+                fontSize = 23.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             if (unit.isNotEmpty()) {
@@ -467,22 +616,22 @@ fun MetricCard(
 // ==========================================
 
 /**
- * Athletic capsule badge for categories, levels, or event statuses.
+ * Capsule badge for categories, levels, or event statuses.
  */
 @Composable
 fun KinetraBadge(
     text: String,
     modifier: Modifier = Modifier,
-    textColor: Color = GlowBlueBright,
-    backgroundColor: Color = ButtonBackground,
-    borderColor: Color = ButtonBorder
+    textColor: Color = BrandAccentText,
+    backgroundColor: Color = AccentTintSurface,
+    borderColor: Color = CardBorder
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50.dp))
             .background(backgroundColor)
             .border(1.dp, borderColor, RoundedCornerShape(50.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -490,7 +639,7 @@ fun KinetraBadge(
             color = textColor,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.5.sp
+            letterSpacing = 0.4.sp
         )
     }
 }
@@ -516,7 +665,7 @@ fun SectionHeader(
     ) {
         Text(
             text = title.uppercase(),
-            color = TextDim,
+            color = TextGray,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp
@@ -525,7 +674,7 @@ fun SectionHeader(
         if (actionText != null && onActionClick != null) {
             Text(
                 text = actionText,
-                color = ElectricCyan,
+                color = BrandAccentText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { onActionClick() }
@@ -539,7 +688,7 @@ fun SectionHeader(
 // ==========================================
 
 /**
- * Top bar with optional leading icon (hamburger / back), title, and notification bell with unread badge.
+ * Top bar with optional leading icon (hamburger / back), title, and notification bell.
  */
 @Composable
 fun KinetraTopBar(
@@ -576,7 +725,7 @@ fun KinetraTopBar(
                 if (subtitle != null) {
                     Text(
                         text = subtitle.uppercase(),
-                        color = TextDim,
+                        color = BrandAccentText,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp
@@ -587,7 +736,7 @@ fun KinetraTopBar(
                     color = TextWhite,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.2.sp
                 )
             }
         }
@@ -598,14 +747,14 @@ fun KinetraTopBar(
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(ButtonBackground)
-                    .border(1.dp, CardBorderSubtle, RoundedCornerShape(12.dp))
+                    .border(1.dp, ButtonBorder, RoundedCornerShape(12.dp))
                     .clickable { onNotificationsClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Notifications,
                     contentDescription = "Notifications",
-                    tint = if (unreadNotificationsCount > 0) ElectricCyan else TextGray,
+                    tint = if (unreadNotificationsCount > 0) BrandAccentText else TextGray,
                     modifier = Modifier.size(20.dp)
                 )
 
@@ -613,9 +762,9 @@ fun KinetraTopBar(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(4.dp)
+                            .padding(5.dp)
                             .size(8.dp)
-                            .background(AthleticRed, CircleShape)
+                            .background(BrandPrimary, CircleShape)
                     )
                 }
             }
@@ -628,20 +777,20 @@ fun KinetraTopBar(
 // ==========================================
 
 /**
- * Animated linear progress bar with optional gradient fill.
+ * Animated linear progress bar using KINETRA Maroon accent fill.
  */
 @Composable
 fun ProgressTrack(
     progress: Float,
     modifier: Modifier = Modifier,
-    height: Dp = 6.dp,
-    trackColor: Color = CardBorderSubtle,
+    height: Dp = 7.dp,
+    trackColor: Color = SurfaceDark,
     fillBrush: Brush = BrushElectricBlue,
-    shape: Shape = RoundedCornerShape(3.dp)
+    shape: Shape = RoundedCornerShape(4.dp)
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = tween(durationMillis = 600),
+        animationSpec = tween(durationMillis = 550),
         label = "progress_anim"
     )
 
@@ -656,6 +805,7 @@ fun ProgressTrack(
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth(animatedProgress)
+                .clip(shape)
                 .background(fillBrush)
         )
     }

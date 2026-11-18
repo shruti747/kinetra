@@ -1,6 +1,5 @@
 package com.kinetra.app.ui.profile
 
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -8,17 +7,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -28,7 +24,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +56,6 @@ fun EditProfileScreen(
     var emailError by remember { mutableStateOf<String?>(null) }
     var generalError by remember { mutableStateOf<String?>(null) }
 
-    // Android System Photo Picker (Zero broad storage permissions needed)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -70,7 +64,6 @@ fun EditProfileScreen(
         }
     }
 
-    // Decode picked photo safely
     val profileBitmap = remember(profilePhotoUri) {
         if (profilePhotoUri.isNotEmpty()) {
             runCatching {
@@ -86,7 +79,7 @@ fun EditProfileScreen(
         } else null
     }
 
-    val availableSports = listOf("Running", "Cycling", "Marathon", "Trail Running", "Walking")
+    val availableSports = listOf("Running", "Cycling", "Walking", "Marathon", "Trail Running")
 
     Box(
         modifier = Modifier
@@ -99,66 +92,39 @@ fun EditProfileScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .verticalScroll(scrollState)
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    KinetraIconButton(
-                        icon = Icons.Filled.ArrowBack,
-                        onClick = onBack,
-                        size = 40.dp
+            KinetraScreenHeader(
+                title = "Edit Profile",
+                subtitle = "ATHLETE IDENTITY",
+                onBack = onBack,
+                trailingContent = {
+                    Text(
+                        text = "Cancel",
+                        color = TextGray,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.clickable { onBack() }
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "ATHLETE IDENTITY",
-                            color = TextDim,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
-                        )
-                        Text(
-                            text = "Edit Profile",
-                            color = TextWhite,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
                 }
-
-                Text(
-                    text = "Cancel",
-                    color = TextGray,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.clickable { onBack() }
-                )
-            }
+            )
 
             // Circular Profile Photo Picker
             KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = CardBackgroundElevated,
-                borderColor = CardBorder
+                contentPadding = PaddingValues(18.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(104.dp)
+                            .size(96.dp)
                             .clip(CircleShape)
-                            .background(BrushDarkCard)
-                            .border(2.dp, ElectricCyan, CircleShape),
+                            .background(AccentTintSurface)
+                            .border(2.dp, BrandPrimary, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         if (profileBitmap != null) {
@@ -169,7 +135,6 @@ fun EditProfileScreen(
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            // Initial letters avatar
                             val initials = name.split(" ")
                                 .filter { it.isNotBlank() }
                                 .take(2)
@@ -179,14 +144,14 @@ fun EditProfileScreen(
 
                             Text(
                                 text = initials,
-                                color = ElectricCyan,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold
+                                color = BrandAccentText,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.ExtraBold
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         KinetraOutlinedButton(
@@ -196,7 +161,7 @@ fun EditProfileScreen(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
                             },
-                            height = 38.dp,
+                            height = 40.dp,
                             leadingIcon = Icons.Filled.PhotoCamera
                         )
 
@@ -204,8 +169,8 @@ fun EditProfileScreen(
                             KinetraOutlinedButton(
                                 text = "Remove",
                                 onClick = { profilePhotoUri = "" },
-                                height = 38.dp,
-                                borderColor = AthleticRed.copy(alpha = 0.5f),
+                                height = 40.dp,
+                                borderColor = AthleticRed.copy(alpha = 0.45f),
                                 contentColor = AthleticRed
                             )
                         }
@@ -216,13 +181,10 @@ fun EditProfileScreen(
             // Input Fields
             KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = CardBackground,
-                borderColor = CardBorder
+                contentPadding = PaddingValues(18.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     KinetraTextField(
@@ -271,7 +233,7 @@ fun EditProfileScreen(
                         value = bio,
                         onValueChange = { bio = it },
                         label = "Athlete Bio",
-                        placeholder = "Tell fellow runners about your goals...",
+                        placeholder = "Tell fellow athletes about your goals...",
                         leadingIcon = Icons.Filled.Info,
                         singleLine = false
                     )
@@ -281,43 +243,41 @@ fun EditProfileScreen(
             // Preferred Sports Selector
             KinetraCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = CardBackground,
-                borderColor = CardBorder
+                contentPadding = PaddingValues(16.dp)
             ) {
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text(
-                        text = "PREFERRED SPORTS",
-                        color = TextDim,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        availableSports.take(3).forEach { sport ->
-                            val isSelected = selectedSports.contains(sport, ignoreCase = true)
-                            KinetraBadge(
-                                text = sport,
-                                textColor = if (isSelected) TextWhite else TextGray,
-                                backgroundColor = if (isSelected) IndicatorActive else ButtonBackground,
-                                borderColor = if (isSelected) ElectricCyan else ButtonBorder,
-                                modifier = Modifier.clickable {
-                                    selectedSports = if (isSelected) {
-                                        selectedSports.replace(sport, "").replace("· ·", "·").trim(' ', '·')
-                                    } else {
-                                        if (selectedSports.isEmpty()) sport else "$selectedSports · $sport"
-                                    }
+                Text(
+                    text = "PREFERRED SPORTS",
+                    color = TextGray,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    availableSports.forEach { sport ->
+                        val isSelected = selectedSports.contains(sport, ignoreCase = true)
+                        KinetraBadge(
+                            text = sport,
+                            textColor = if (isSelected) OnAccent else TextSecondary,
+                            backgroundColor = if (isSelected) BrandPrimary else BackgroundDark,
+                            borderColor = if (isSelected) BrandPrimary else ButtonBorder,
+                            modifier = Modifier.clickable {
+                                selectedSports = if (isSelected) {
+                                    selectedSports.replace(sport, "").replace("· ·", "·").trim(' ', '·')
+                                } else {
+                                    if (selectedSports.isEmpty()) sport else "$selectedSports · $sport"
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
 
-            // Status feedback
             AnimatedVisibility(visible = generalError != null || state.errorMessage != null) {
                 Text(
                     text = generalError ?: state.errorMessage.orEmpty(),
@@ -327,7 +287,6 @@ fun EditProfileScreen(
                 )
             }
 
-            // Action Buttons
             KinetraButton(
                 text = "Save Changes",
                 onClick = {
@@ -353,12 +312,8 @@ fun EditProfileScreen(
                         sports = selectedSports,
                         profilePhotoUri = profilePhotoUri,
                         context = context,
-                        onSuccess = {
-                            onSaveSuccess()
-                        },
-                        onError = { err ->
-                            generalError = err
-                        }
+                        onSuccess = { onSaveSuccess() },
+                        onError = { err -> generalError = err }
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -371,8 +326,7 @@ fun EditProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
-

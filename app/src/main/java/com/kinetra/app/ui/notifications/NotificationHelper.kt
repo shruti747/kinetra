@@ -56,7 +56,8 @@ object NotificationHelper {
 
         try {
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_kinetra_splash_logo)
+                .setSmallIcon(R.drawable.ic_kinetra_notification)
+                .setColor(0xFF800020.toInt())
                 .setContentTitle(title)
                 .setContentText(message)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))

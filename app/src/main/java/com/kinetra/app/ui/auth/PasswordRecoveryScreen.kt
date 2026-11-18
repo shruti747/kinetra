@@ -1,17 +1,21 @@
 package com.kinetra.app.ui.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.*
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -26,7 +30,7 @@ fun PasswordRecoveryScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -41,18 +45,12 @@ fun PasswordRecoveryScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "KINETRA",
-                        color = TextGray,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "Back",
-                        color = GlowBlueBright,
-                        fontSize = 14.sp,
-                        modifier = Modifier.clickable { onBackToSignIn() }
+                    KinetraBrandLockup(badgeSize = 34.dp, wordmarkSizeSp = 15f)
+                    KinetraIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        onClick = onBackToSignIn,
+                        contentDescription = "Back",
+                        size = 40.dp
                     )
                 }
 
@@ -61,89 +59,84 @@ fun PasswordRecoveryScreen(
                 Text(
                     text = "Reset. Refocus.",
                     color = TextWhite,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.4).sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "A fresh start is one email away. Enter your email to preview account recovery.",
+                    text = "Enter your email address to preview KINETRA account recovery instructions.",
                     color = TextGray,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
-                Text(text = "Email address", color = TextGray, fontSize = 12.sp)
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = state.email,
-                    onValueChange = { viewModel.updateEmail(it) },
+                KinetraCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GlowBlueBright,
-                        unfocusedBorderColor = ButtonBorder,
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        focusedContainerColor = ButtonBackground,
-                        unfocusedContainerColor = ButtonBackground
-                    ),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { linkSent = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = IndicatorActive)
+                    contentPadding = PaddingValues(18.dp)
                 ) {
-                    Text(
-                        text = "Send reset link",
-                        color = TextWhite,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                    KinetraTextField(
+                        value = state.email,
+                        onValueChange = { viewModel.updateEmail(it) },
+                        label = "Email address",
+                        placeholder = "athlete@kinetra.com",
+                        leadingIcon = Icons.Filled.Email,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
                 }
 
+                Spacer(modifier = Modifier.height(20.dp))
+
+                KinetraButton(
+                    text = "Send reset link",
+                    onClick = { linkSent = true },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 if (linkSent) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Card(
+                    Spacer(modifier = Modifier.height(20.dp))
+                    KinetraCard(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = ButtonBackground),
-                        border = BorderStroke(1.dp, ButtonBorder)
+                        backgroundColor = AccentTintSurface,
+                        borderColor = BrandPrimary.copy(alpha = 0.25f),
+                        contentPadding = PaddingValues(16.dp)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "Reset link preview", color = GlowBlueBright, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Recovery instructions are simulated for ${state.email}. No real reset link is generated.",
-                                color = TextGray,
-                                fontSize = 12.sp
-                            )
-                        }
+                        Text(
+                            text = "RESET LINK PREVIEW",
+                            color = BrandAccentText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Recovery instructions are simulated for ${state.email.ifBlank { "your account" }}. No real reset link is generated.",
+                            color = TextSecondary,
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
                     }
                 }
             }
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Back to sign in",
-                    color = GlowBlueBright,
+                    color = BrandAccentText,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable { onBackToSignIn() }
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Demo only. No email was sent.",
+                    text = "Preview mode only. No email was sent.",
                     color = TextGray,
                     fontSize = 11.sp
                 )

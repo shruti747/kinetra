@@ -1,18 +1,26 @@
 package com.kinetra.app.ui.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kinetra.app.ui.components.*
 import com.kinetra.app.ui.theme.*
 
 @Composable
@@ -24,18 +32,43 @@ fun SignInScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    SignInScreenContent(
+        state = state,
+        onEmailChange = { viewModel.updateEmail(it) },
+        onPasswordChange = { viewModel.updatePassword(it) },
+        onSignInClick = { viewModel.login(context = context, onSuccess = onSignInSuccess) },
+        onForgotPasswordClick = onForgotPasswordClick,
+        onCreateAccountClick = onCreateAccountClick,
+        onBack = onBack
+    )
+}
+
+@Composable
+internal fun SignInScreenContent(
+    state: AuthUiState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onSignInClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
+    onBack: () -> Unit
+) {
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .navigationBarsPadding(),
+                .navigationBarsPadding()
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
@@ -44,19 +77,13 @@ fun SignInScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "KINETRA",
-                        color = TextGray,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
-                    )
+                    KinetraBrandLockup(badgeSize = 34.dp, wordmarkSizeSp = 15f)
 
-                    Text(
-                        text = "Back",
-                        color = GlowBlueBright,
-                        fontSize = 14.sp,
-                        modifier = Modifier.clickable { onBack() }
+                    KinetraIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        onClick = onBack,
+                        contentDescription = "Back",
+                        size = 40.dp
                     )
                 }
 
@@ -65,188 +92,168 @@ fun SignInScreen(
                 Text(
                     text = "Back in your stride.",
                     color = TextWhite,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.4).sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Welcome back, athlete. Your next personal best is waiting.",
+                    text = "Welcome back, athlete. Sign in to continue your training.",
                     color = TextGray,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
-                Text(
-                    text = "Email address",
-                    color = TextGray,
-                    fontSize = 12.sp
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                OutlinedTextField(
-                    value = state.email,
-                    onValueChange = { viewModel.updateEmail(it) },
+                KinetraCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !state.isLoading,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GlowBlueBright,
-                        unfocusedBorderColor = ButtonBorder,
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        focusedContainerColor = ButtonBackground,
-                        unfocusedContainerColor = ButtonBackground
-                    ),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Password",
-                    color = TextGray,
-                    fontSize = 12.sp
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                OutlinedTextField(
-                    value = state.password,
-                    onValueChange = { viewModel.updatePassword(it) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !state.isLoading,
-                    visualTransformation = PasswordVisualTransformation(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GlowBlueBright,
-                        unfocusedBorderColor = ButtonBorder,
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        focusedContainerColor = ButtonBackground,
-                        unfocusedContainerColor = ButtonBackground
-                    ),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    contentPadding = PaddingValues(18.dp)
                 ) {
-                    Text(
-                        text = "Forgot Password?",
-                        color = GlowBlueBright,
-                        fontSize = 13.sp,
-                        modifier = Modifier.clickable {
-                            onForgotPasswordClick()
-                        }
+                    KinetraTextField(
+                        value = state.email,
+                        onValueChange = onEmailChange,
+                        label = "Email address",
+                        placeholder = "athlete@kinetra.com",
+                        leadingIcon = Icons.Filled.Email,
+                        enabled = !state.isLoading,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    KinetraTextField(
+                        value = state.password,
+                        onValueChange = onPasswordChange,
+                        label = "Password",
+                        placeholder = "Enter your password",
+                        leadingIcon = Icons.Filled.Lock,
+                        isPassword = true,
+                        enabled = !state.isLoading
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "Forgot Password?",
+                            color = BrandAccentText,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.clickable { onForgotPasswordClick() }
+                        )
+                    }
                 }
 
                 if (state.errorMessage != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-
+                    Spacer(modifier = Modifier.height(14.dp))
                     Text(
                         text = state.errorMessage.orEmpty(),
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 13.sp
+                        color = AthleticRed,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(28.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
-                    onClick = {
-                        viewModel.login(onSuccess = onSignInSuccess)
-                    },
+                KinetraButton(
+                    text = "Sign in",
+                    onClick = onSignInClick,
                     enabled = !state.isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = IndicatorActive
-                    )
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(22.dp),
-                            color = TextWhite,
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text(
-                            text = "Sign in",
-                            color = TextWhite,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                    isLoading = state.isLoading,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "New to Kinetra? ",
+                        text = "New to KINETRA? ",
                         color = TextGray,
                         fontSize = 14.sp
                     )
 
                     Text(
                         text = "Create an account",
-                        color = GlowBlueBright,
+                        color = BrandAccentText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            onCreateAccountClick()
-                        }
+                        modifier = Modifier.clickable { onCreateAccountClick() }
                     )
                 }
 
-                Card(
+                KinetraCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = ButtonBackground
-                    ),
-                    border = BorderStroke(1.dp, ButtonBorder)
+                    backgroundColor = AccentTintSurface,
+                    borderColor = BrandPrimary.copy(alpha = 0.22f),
+                    contentPadding = PaddingValues(14.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp)
-                    ) {
-                        Text(
-                            text = "Account login",
-                            color = TextGray,
-                            fontSize = 11.sp
-                        )
-
-                        Text(
-                            text = "Use your registered Kinetra account",
-                            color = TextWhite,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Text(
-                            text = "Your credentials will be checked against the server.",
-                            color = TextGray,
-                            fontSize = 11.sp
-                        )
-                    }
+                    Text(
+                        text = "ACCOUNT SYNC",
+                        color = BrandAccentText,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = "Use your registered KINETRA account",
+                        color = TextWhite,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Your credentials are verified securely against the KINETRA server.",
+                        color = TextGray,
+                        fontSize = 11.sp
+                    )
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Login Screen - Light")
+@Composable
+private fun SignInScreenLightPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.LIGHT)) {
+        SignInScreenContent(
+            state = AuthUiState(email = "alex.morgan@kinetra.app", password = "••••••••"),
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSignInClick = {},
+            onForgotPasswordClick = {},
+            onCreateAccountClick = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Login Screen - Dark")
+@Composable
+private fun SignInScreenDarkPreview() {
+    KinetraTheme(overrideSettings = AppearanceSettings(themeMode = ThemeMode.DARK)) {
+        SignInScreenContent(
+            state = AuthUiState(email = "alex.morgan@kinetra.app", password = "••••••••"),
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSignInClick = {},
+            onForgotPasswordClick = {},
+            onCreateAccountClick = {},
+            onBack = {}
+        )
     }
 }

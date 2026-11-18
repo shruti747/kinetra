@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Tightly framed minimal geometric K symbol for in-app branding and animated splash screen -->
+    <path
+        android:fillColor="#800020"
+        android:pathData="M18,12 L33,12 L33,43.5 L59.5,12 L78,12 L47.5,48 L78,84 L59.5,84 L33,52.5 L33,84 L18,84 Z" />
+</vector>

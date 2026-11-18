@@ -97,7 +97,7 @@ fun MainScreen(
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF10182B)
+                    containerColor = CardBackground
                 )
             ) {
                 Column(
@@ -108,7 +108,7 @@ fun MainScreen(
                 ) {
                     Text(
                         text = "Performance Overview",
-                        color = GlowBlueBright,
+                        color = BrandAccentText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -150,7 +150,7 @@ fun MainScreen(
             ) {
                 Text(
                     text = "START NEW RUN",
-                    color = TextWhite,
+                    color = OnAccent,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp
